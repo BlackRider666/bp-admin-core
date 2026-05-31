@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 /*
- * Single source of truth for BPAdmin v3 PHP code-style rules.
+ * Single source of truth for BPAdmin PHP code-style rules.
  *
  * Consumed by:
- *   - code/v3/bp-admin-core/.php-cs-fixer.dist.php (PHP-CS-Fixer)
- *   - code/v3/scripts/sync-pint.php (generates code/v3/pint.json for Laravel Pint)
+ *   - .php-cs-fixer.dist.php (PHP-CS-Fixer)
+ *   - scripts/sync-pint.php (generates pint.json for Laravel Pint)
  *
  * Базовий ruleset (PER-CS 2.0) додається в кожному tool-конфігу окремо
  * (PHP-CS-Fixer: '@PER-CS2.0' => true; Pint: "preset": "per"). Цей файл
