@@ -1,0 +1,5 @@
+{
+    "Domain": { "path": "src/Domain", "min": 95.0 },
+    "Application": { "path": "src/Application", "min": 90.0 },
+    "Support": { "path": "src/Support", "min": 80.0 }
+}

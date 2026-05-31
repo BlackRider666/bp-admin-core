@@ -1,0 +1,733 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Part \$key \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/Application/Exceptions/EntityNotFoundException.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Application\\UseCases\\Auth\\BuildLoginFormViewUseCase\:\:execute\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Application/UseCases/Auth/BuildLoginFormViewUseCase.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Application\\UseCases\\Auth\\LoginUseCase\:\:execute\(\) has parameter \$credentials with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Application/UseCases/Auth/LoginUseCase.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Application\\UseCases\\Dashboard\\BuildDashboardViewUseCase\:\:execute\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Application/UseCases/Dashboard/BuildDashboardViewUseCase.php
+
+		-
+			message: '#^Parameter \#1 \$value of class BlackParadise\\CoreAdmin\\Domain\\ValueObjects\\EntityKey constructor expects int\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Application/UseCases/Entity/CreateRecordUseCase.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 2
+			path: src/Application/UseCases/Entity/ResolveEmbeddedRelationsUseCase.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Application\\UseCases\\Entity\\ResolveEmbeddedRelationsUseCase\:\:resolveOnStore\(\) should return array\{attributes\: array\<string, mixed\>, defer\: array\<string, array\{field\: BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractRelationField, payload\: array\<string, mixed\>\}\>\} but returns array\{attributes\: array\<string, mixed\>, defer\: array\<string, array\{field\: BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractRelationField, payload\: array\<mixed, mixed\>\}\>\}\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Application/UseCases/Entity/ResolveEmbeddedRelationsUseCase.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Application\\UseCases\\Entity\\ResolveEmbeddedRelationsUseCase\:\:resolveOnUpdate\(\) should return array\{attributes\: array\<string, mixed\>, defer\: array\<string, array\{field\: BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractRelationField, payload\: array\<string, mixed\>\}\>\} but returns array\{attributes\: array\<string, mixed\>, defer\: array\<string, array\{field\: BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractRelationField, payload\: array\<mixed, mixed\>\}\>\}\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Application/UseCases/Entity/ResolveEmbeddedRelationsUseCase.php
+
+		-
+			message: '#^Parameter \#2 \$attributes of class BlackParadise\\CoreAdmin\\Domain\\Entity\\EntityRecord constructor expects array\<string, mixed\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 4
+			path: src/Application/UseCases/Entity/ResolveEmbeddedRelationsUseCase.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of interface BlackParadise\\CoreAdmin\\Domain\\Contracts\\Fields\\FieldContract\:
+				Use ruleSet\(\) instead\. Returns string\-based rules for backward compatibility\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: src/Application/UseCases/Entity/RuleBuilder.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: src/Application/UseCases/Entity/RuleBuilder.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Action\\ActionContract\:\:meta\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Contracts/Action/ActionContract.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Audit\\AuditLoggerContract\:\:log\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Contracts/Audit/AuditLoggerContract.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthenticationProviderContract\:\:attempt\(\) has parameter \$credentials with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Contracts/Auth/AuthenticationProviderContract.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Dashboard\\DashboardWidgetContract\:\:data\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Contracts/Dashboard/DashboardWidgetContract.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Entity\\EntityRecordContract\:\:attributes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Contracts/Entity/EntityRecordContract.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Entity\\EntityRecordContract\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Contracts/Entity/EntityRecordContract.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Events\\DomainEventContract\:\:getPayload\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Contracts/Events/DomainEventContract.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Fields\\FieldContract\:\:meta\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Contracts/Fields/FieldContract.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Fields\\FieldContract\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Contracts/Fields/FieldContract.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Entity\\EntityRecord\:\:attributes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Entity/EntityRecord.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Entity\\EntityRecord\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Entity/EntityRecord.php
+
+		-
+			message: '#^Variable property access on object\.$#'
+			identifier: property.dynamicName
+			count: 1
+			path: src/Domain/Entity/EntityRecord.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Events\\AbstractDomainEvent\:\:__construct\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Events/AbstractDomainEvent.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Events\\AbstractDomainEvent\:\:getPayload\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Events/AbstractDomainEvent.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:\:__construct\(\) has parameter \$meta with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/Base/AbstractField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:\:__construct\(\) has parameter \$rules with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/Base/AbstractField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:\:meta\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/Base/AbstractField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/Base/AbstractField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:\:withMeta\(\) has parameter \$meta with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/Base/AbstractField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:\:withRules\(\) has parameter \$rules with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/Base/AbstractField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractRelationField\:\:__construct\(\) has parameter \$meta with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/Base/AbstractRelationField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractRelationField\:\:__construct\(\) has parameter \$rules with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/Base/AbstractRelationField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\EnumField\:\:__construct\(\) has parameter \$meta with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/EnumField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\EnumField\:\:__construct\(\) has parameter \$rules with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/EnumField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\EnumField\:\:make\(\) has parameter \$optionsOrSource with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/EnumField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\EnumField\:\:meta\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/EnumField.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 4
+			path: src/Domain/Fields/FileField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\FileField\:\:__construct\(\) has parameter \$rules with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/FileField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\HiddenField\:\:__construct\(\) has parameter \$rules with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/HiddenField.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 4
+			path: src/Domain/Fields/ImageField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\ImageField\:\:__construct\(\) has parameter \$rules with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/ImageField.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 4
+			path: src/Domain/Fields/MorphFileField.php
+
+		-
+			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\MorphFileField\:\:__construct\(\) has parameter \$rules with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Fields/MorphFileField.php
+
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Validation/RuleSet.php
+
+		-
+			message: '#^Part \$value \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/Domain/Validation/RuleSet.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertNull\(\) with null will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/Application/UseCases/Auth/LogoutUseCaseTest.php
+
+		-
+			message: '#^Result of method BlackParadise\\CoreAdmin\\Application\\UseCases\\Auth\\LogoutUseCase\:\:execute\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: tests/Unit/Application/UseCases/Auth/LogoutUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/BuildFormViewUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 11
+			path: tests/Unit/Application/UseCases/Entity/BuildFormViewUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\EntityDefinition\\EntityDefinitionContract\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 12
+			path: tests/Unit/Application/UseCases/Entity/BuildFormViewUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 8
+			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\EntityDefinition\\EntityDefinitionContract\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Events\\EventDispatcherContract\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Validation\\ValidationProviderContract\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Validation\\ValidationProviderContract\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Mutators\\EntityMutatorInterface\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Mutators\\EntityMutatorInterface\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 6
+			path: tests/Unit/Application/UseCases/Entity/DeleteRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Events\\EventDispatcherContract\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Unit/Application/UseCases/Entity/DeleteRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Mutators\\EntityMutatorInterface\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Unit/Application/UseCases/Entity/DeleteRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Repositories\\EntityRepositoryInterface\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/DeleteRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Repositories\\EntityRepositoryInterface\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Unit/Application/UseCases/Entity/DeleteRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Unit/Application/UseCases/Entity/FindRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Repositories\\EntityRepositoryInterface\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/FindRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Repositories\\EntityRepositoryInterface\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Unit/Application/UseCases/Entity/FindRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Unit/Application/UseCases/Entity/ListRecordsUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Repositories\\EntityRepositoryInterface\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Unit/Application/UseCases/Entity/ListRecordsUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Repositories\\EntityRepositoryInterface\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/ListRecordsUseCaseTest.php
+
+		-
+			message: '#^Method Tests\\Unit\\Application\\UseCases\\Entity\\ResolveEmbeddedRelationsUseCaseTest\:\:definitionWithFields\(\) has parameter \$fields with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/ResolveEmbeddedRelationsUseCaseTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Prefer using ruleSet\(\) and Rule enum methods\.$#
+			'''
+			identifier: method.deprecated
+			count: 4
+			path: tests/Unit/Application/UseCases/Entity/RuleBuilderTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 10
+			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Events\\EventDispatcherContract\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Validation\\ValidationProviderContract\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Validation\\ValidationProviderContract\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Mutators\\EntityMutatorInterface\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Mutators\\EntityMutatorInterface\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Repositories\\EntityRepositoryInterface\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Repositories\\EntityRepositoryInterface\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
+
+		-
+			message: '#^Method Tests\\Unit\\Domain\\Contracts\\Entity\\EntityRecordContractTest\:\:buildContract\(\) has parameter \$attributes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Unit/Domain/Contracts/Entity/EntityRecordContractTest.php
+
+		-
+			message: '#^Method Tests\\Unit\\Domain\\Contracts\\Entity\\EntityRecordContractTest\:\:buildContractWithRelations\(\) has parameter \$attributes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Unit/Domain/Contracts/Entity/EntityRecordContractTest.php
+
+		-
+			message: '#^Method Tests\\Unit\\Domain\\Contracts\\Entity\\EntityRecordContractTest\:\:buildContractWithRelations\(\) has parameter \$relations with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Unit/Domain/Contracts/Entity/EntityRecordContractTest.php
+
+		-
+			message: '#^Dynamic call to static method PHPUnit\\Framework\\TestCase\:\:createStub\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: tests/Unit/Domain/Entity/EntityRecordPathTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 12
+			path: tests/Unit/Domain/Fields/AbstractFieldTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Prefer using ruleSet\(\) and Rule enum methods\.$#
+			'''
+			identifier: method.deprecated
+			count: 3
+			path: tests/Unit/Domain/Fields/AbstractFieldTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 9
+			path: tests/Unit/Domain/Fields/AbstractRelationFieldTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Prefer using ruleSet\(\) and Rule enum methods\.$#
+			'''
+			identifier: method.deprecated
+			count: 3
+			path: tests/Unit/Domain/Fields/AbstractRelationFieldTest.php
+
+		-
+			message: '#^Method Tests\\Unit\\Domain\\Fields\\AbstractRelationFieldTest\:\:allRelationFieldProvider\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Unit/Domain/Fields/AbstractRelationFieldTest.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method BlackParadise\\CoreAdmin\\Domain\\Fields\\BelongsToManyField\:\:pivotPayload\(\) expects callable\(int\|string, array\<string, mixed\>\)\: array\<string, mixed\>, Closure\(int, array\)\: array\{approved\: bool\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Domain/Fields/BelongsToManyFieldPivotTest.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method BlackParadise\\CoreAdmin\\Domain\\Fields\\BelongsToManyField\:\:pivotPayload\(\) expects callable\(int\|string, array\<string, mixed\>\)\: array\<string, mixed\>, Closure\(int, array\)\: array\{custom\: true\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Domain/Fields/BelongsToManyFieldPivotTest.php
+
+		-
+			message: '#^Method Tests\\Unit\\Domain\\Fields\\ConcreteFieldTypesTest\:\:fieldTypeProvider\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Unit/Domain/Fields/ConcreteFieldTypesTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: tests/Unit/Domain/Fields/EnumFieldTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\FileField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 5
+			path: tests/Unit/Domain/Fields/FileFieldAllowlistTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Prefer using ruleSet\(\) and Rule enum methods\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: tests/Unit/Domain/Fields/FileFieldAllowlistTest.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: tests/Unit/Domain/Fields/FileFieldAllowlistTest.php
+
+		-
+			message: '#^Parameter \#1 \$extensions of method BlackParadise\\CoreAdmin\\Domain\\Fields\\FileField\:\:allowedExtensions\(\) expects array\<int, string\>, array\<string, string\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Domain/Fields/FileFieldAllowlistTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\FileField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 2
+			path: tests/Unit/Domain/Fields/FileFieldTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: tests/Unit/Domain/Fields/HiddenFieldTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\ImageField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 3
+			path: tests/Unit/Domain/Fields/ImageFieldTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\MorphFileField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: tests/Unit/Domain/Fields/MorphFileFieldTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: tests/Unit/Domain/Fields/RelationFieldEagerLoadTest.php
+
+		-
+			message: '#^Parameter \#1 \$strategy of method BlackParadise\\CoreAdmin\\Domain\\Fields\\HasManyField\:\:strategy\(\) expects ''append''\|''merge''\|''replace'', '''' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Domain/Fields/RelationFieldStrategyTest.php
+
+		-
+			message: '#^Parameter \#1 \$strategy of method BlackParadise\\CoreAdmin\\Domain\\Fields\\HasManyField\:\:strategy\(\) expects ''append''\|''merge''\|''replace'', ''REPLACE'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Domain/Fields/RelationFieldStrategyTest.php
+
+		-
+			message: '#^Parameter \#1 \$strategy of method BlackParadise\\CoreAdmin\\Domain\\Fields\\HasManyField\:\:strategy\(\) expects ''append''\|''merge''\|''replace'', ''sync'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Domain/Fields/RelationFieldStrategyTest.php
+
+		-
+			message: '#^Parameter \#1 \$strategy of method BlackParadise\\CoreAdmin\\Domain\\Fields\\HasManyField\:\:strategy\(\) expects ''append''\|''merge''\|''replace'', string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Domain/Fields/RelationFieldStrategyTest.php
+
+		-
+			message: '#^Parameter \#1 \$strategy of method BlackParadise\\CoreAdmin\\Domain\\Fields\\MorphManyField\:\:strategy\(\) expects ''append''\|''merge''\|''replace'', ''upsert'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Domain/Fields/RelationFieldStrategyTest.php
+
+		-
+			message: '#^Parameter \#1 \$strategy of method BlackParadise\\CoreAdmin\\Domain\\Fields\\MorphManyField\:\:strategy\(\) expects ''append''\|''merge''\|''replace'', string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Domain/Fields/RelationFieldStrategyTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: tests/Unit/Domain/Fields/RelationFieldsTest.php
+
+		-
+			message: '#^Method Tests\\Unit\\Domain\\Fields\\RelationFieldsTest\:\:relationFieldProvider\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Unit/Domain/Fields/RelationFieldsTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: tests/Unit/Domain/Fields/TranslatableFieldTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsString\(\) with ''array''\|''boolean''\|''date''\|''email''\|''file''\|''image''\|''integer''\|''nullable''\|''numeric''\|''required''\|''string''\|''url'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/Domain/Validation/RuleTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertNull\(\) with null will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/Domain/Validation/RuleTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsInt\(\) with int will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/Security/InputValidationSecurityTest.php
+
+		-
+			message: '#^Dynamic call to static method PHPUnit\\Framework\\TestCase\:\:createStub\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 4
+			path: tests/Unit/Security/InputValidationSecurityTest.php

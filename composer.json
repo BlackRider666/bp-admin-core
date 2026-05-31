@@ -1,0 +1,57 @@
+{
+  "name": "black-paradise/core-admin",
+  "description": "Generate Admin Panel Core",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Vladuslav Manzhos",
+      "email": "loverider2012@gmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "autoload": {
+    "psr-4": {
+        "BlackParadise\\CoreAdmin\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+        "Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.0",
+    "friendsofphp/php-cs-fixer": "^3.64",
+    "phpstan/phpstan": "^2.0",
+    "phpstan/phpstan-strict-rules": "^2.0",
+    "phpstan/phpstan-deprecation-rules": "^2.0",
+    "rector/rector": "^2.0",
+    "pestphp/pest": "^3.0"
+  },
+  "scripts": {
+    "cs:check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
+    "cs:fix": "vendor/bin/php-cs-fixer fix",
+    "analyse": "vendor/bin/phpstan analyse --memory-limit=1G",
+    "rector": "vendor/bin/rector --dry-run --memory-limit=1G",
+    "rector:apply": "vendor/bin/rector --memory-limit=1G",
+    "test": "vendor/bin/pest",
+    "test:arch": "vendor/bin/pest --testsuite=Architecture",
+    "test:coverage": "vendor/bin/pest --coverage --min=90",
+    "test:coverage:strict": [
+      "vendor/bin/pest --coverage --coverage-clover=coverage.clover.xml --min=90",
+      "php scripts/check-coverage.php coverage.clover.xml scripts/coverage-thresholds.bp-admin-core.json ."
+    ],
+    "qa": [
+      "@cs:check",
+      "@analyse",
+      "@rector",
+      "@test"
+    ]
+  }
+}
