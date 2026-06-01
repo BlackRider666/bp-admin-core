@@ -37,24 +37,6 @@ parameters:
 			path: src/Application/UseCases/Entity/ResolveEmbeddedRelationsUseCase.php
 
 		-
-			message: '#^Method BlackParadise\\CoreAdmin\\Application\\UseCases\\Entity\\ResolveEmbeddedRelationsUseCase\:\:resolveOnStore\(\) should return array\{attributes\: array\<string, mixed\>, defer\: array\<string, array\{field\: BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractRelationField, payload\: array\<string, mixed\>\}\>\} but returns array\{attributes\: array\<string, mixed\>, defer\: array\<string, array\{field\: BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractRelationField, payload\: array\<mixed, mixed\>\}\>\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Application/UseCases/Entity/ResolveEmbeddedRelationsUseCase.php
-
-		-
-			message: '#^Method BlackParadise\\CoreAdmin\\Application\\UseCases\\Entity\\ResolveEmbeddedRelationsUseCase\:\:resolveOnUpdate\(\) should return array\{attributes\: array\<string, mixed\>, defer\: array\<string, array\{field\: BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractRelationField, payload\: array\<string, mixed\>\}\>\} but returns array\{attributes\: array\<string, mixed\>, defer\: array\<string, array\{field\: BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractRelationField, payload\: array\<mixed, mixed\>\}\>\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Application/UseCases/Entity/ResolveEmbeddedRelationsUseCase.php
-
-		-
-			message: '#^Parameter \#2 \$attributes of class BlackParadise\\CoreAdmin\\Domain\\Entity\\EntityRecord constructor expects array\<string, mixed\>, array\<mixed, mixed\> given\.$#'
-			identifier: argument.type
-			count: 4
-			path: src/Application/UseCases/Entity/ResolveEmbeddedRelationsUseCase.php
-
-		-
 			message: '''
 				#^Call to deprecated method rules\(\) of interface BlackParadise\\CoreAdmin\\Domain\\Contracts\\Fields\\FieldContract\:
 				Use ruleSet\(\) instead\. Returns string\-based rules for backward compatibility\.$#
@@ -570,7 +552,7 @@ parameters:
 				Use ruleSet\(\) instead\.$#
 			'''
 			identifier: method.deprecated
-			count: 1
+			count: 3
 			path: tests/Unit/Domain/Fields/EnumFieldTest.php
 
 		-

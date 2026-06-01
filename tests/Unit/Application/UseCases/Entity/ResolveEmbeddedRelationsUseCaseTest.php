@@ -466,8 +466,11 @@ final class ResolveEmbeddedRelationsUseCaseTest extends TestCase
         $useCase->resolveOnStore($definition, ['author_id' => ['name' => 'Bob', 'type' => 99]]);
 
         self::assertCount(1, $createCalls);
-        self::assertSame(2, $createCalls[0]['record']->attributes()['type'],
-            'State value must override a conflicting payload value.');
+        self::assertSame(
+            2,
+            $createCalls[0]['record']->attributes()['type'],
+            'State value must override a conflicting payload value.',
+        );
     }
 
     public function test_resolve_on_update_with_state_merges_fixed_attributes_into_payload(): void
