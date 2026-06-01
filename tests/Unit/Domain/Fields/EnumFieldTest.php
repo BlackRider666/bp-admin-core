@@ -88,4 +88,40 @@ final class EnumFieldTest extends TestCase
         self::assertTrue($field->isSortable());
         self::assertSame(['admin', 'user'], $field->options());
     }
+
+    public function test_is_single_select_by_default_multiple_flag_false_in_meta(): void
+    {
+        $field = EnumField::make('langs', ['en' => 'EN', 'uk' => 'UK']);
+
+        self::assertArrayHasKey('multiple', $field->meta());
+        self::assertFalse($field->meta()['multiple']);
+    }
+
+    public function test_multiple_false_resets_flag_and_removes_array_rule(): void
+    {
+        $field = EnumField::make('langs', ['en' => 'EN'])->multiple()->multiple(false);
+
+        self::assertFalse($field->isMultiple());
+        self::assertFalse($field->meta()['multiple']);
+        self::assertNotContains('array', $field->rules());
+    }
+
+    public function test_exposes_multiple_flag_in_meta_when_multiple_is_set(): void
+    {
+        $field = EnumField::make('langs', ['en' => 'EN', 'uk' => 'UK'])->multiple();
+        self::assertTrue($field->meta()['multiple']);
+        self::assertSame(['en' => 'EN', 'uk' => 'UK'], $field->meta()['options']);
+    }
+
+    public function test_adds_the_array_validation_rule_when_multiple(): void
+    {
+        $field = EnumField::make('langs', ['en' => 'EN'])->multiple();
+        self::assertContains('array', $field->rules());
+    }
+
+    public function test_multiple_returns_the_field_for_chaining(): void
+    {
+        $field = EnumField::make('langs', ['en' => 'EN']);
+        self::assertSame($field, $field->multiple());
+    }
 }

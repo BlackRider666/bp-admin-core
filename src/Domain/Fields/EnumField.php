@@ -7,6 +7,7 @@ namespace BlackParadise\CoreAdmin\Domain\Fields;
 use BackedEnum;
 use BlackParadise\CoreAdmin\Domain\Contracts\LabeledValueContract;
 use BlackParadise\CoreAdmin\Domain\Fields\Base\AbstractField;
+use BlackParadise\CoreAdmin\Domain\Validation\Rule;
 use InvalidArgumentException;
 
 /**
@@ -20,6 +21,8 @@ final class EnumField extends AbstractField
 {
     /** @var array<int|string, string> */
     private readonly array $options;
+
+    private bool $multiple = false;
 
     /**
      * @param array<int|string, string>|string $optionsOrSource
@@ -61,9 +64,29 @@ final class EnumField extends AbstractField
         return $this->options;
     }
 
+    public function multiple(bool $multiple = true): self
+    {
+        $this->multiple = $multiple;
+        if ($multiple) {
+            $this->ruleSetInstance->add(Rule::Array);
+        } else {
+            $this->ruleSetInstance->remove(Rule::Array);
+        }
+
+        return $this;
+    }
+
+    public function isMultiple(): bool
+    {
+        return $this->multiple;
+    }
+
     public function meta(): array
     {
-        return array_merge(parent::meta(), ['options' => $this->options]);
+        return array_merge(parent::meta(), [
+            'options'  => $this->options,
+            'multiple' => $this->multiple,
+        ]);
     }
 
     /**
