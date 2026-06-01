@@ -15,4 +15,6 @@ interface RelationFieldContract extends FieldContract
     public function isEmbedded(): bool;
     public function isOwned(): bool;
     public function embeddedDefinition(): ?string;
+    /** @return array<string, mixed> */
+    public function state(): array;
 }

@@ -412,4 +412,93 @@ final class ResolveEmbeddedRelationsUseCaseTest extends TestCase
         self::assertSame(['bio' => 'updated bio'], $updateCalls[0]['record']->attributes());
         self::assertCount(0, $createCalls);
     }
+
+    public function test_resolve_on_store_with_state_merges_fixed_attributes_into_payload(): void
+    {
+        $createCalls = [];
+        $updateCalls = [];
+        $embeddedDef = new StubEmbeddedDefinition();
+
+        $field = BelongsToField::make('author_id', 'App\\Models\\Author')
+            ->embed(StubEmbeddedDefinition::class)
+            ->withState(['type' => 2]);
+
+        $definition = $this->definitionWithFields([$field]);
+        $useCase = $this->makeUseCase(
+            $createCalls,
+            $updateCalls,
+            embeddedDefStub: $embeddedDef,
+            createReturn: fn($rec): EntityRecord => new EntityRecord($embeddedDef, ['id' => 42] + $rec->attributes()),
+        );
+
+        $result = $useCase->resolveOnStore($definition, ['author_id' => ['name' => 'Bob']]);
+
+        // The FK substitution still happens
+        self::assertSame(['author_id' => 42], $result['attributes']);
+        self::assertCount(1, $createCalls);
+        // State key 'type' => 2 must be present in the record passed to createRecord
+        self::assertArrayHasKey('type', $createCalls[0]['record']->attributes());
+        self::assertSame(2, $createCalls[0]['record']->attributes()['type']);
+        // Original payload key preserved as well
+        self::assertArrayHasKey('name', $createCalls[0]['record']->attributes());
+        self::assertSame('Bob', $createCalls[0]['record']->attributes()['name']);
+    }
+
+    public function test_resolve_on_store_state_overrides_conflicting_payload_key(): void
+    {
+        $createCalls = [];
+        $updateCalls = [];
+        $embeddedDef = new StubEmbeddedDefinition();
+
+        $field = BelongsToField::make('author_id', 'App\\Models\\Author')
+            ->embed(StubEmbeddedDefinition::class)
+            ->withState(['type' => 2]);
+
+        $definition = $this->definitionWithFields([$field]);
+        $useCase = $this->makeUseCase(
+            $createCalls,
+            $updateCalls,
+            embeddedDefStub: $embeddedDef,
+            createReturn: fn($rec): EntityRecord => new EntityRecord($embeddedDef, ['id' => 42] + $rec->attributes()),
+        );
+
+        // Payload submits type=99 — state must win with type=2
+        $useCase->resolveOnStore($definition, ['author_id' => ['name' => 'Bob', 'type' => 99]]);
+
+        self::assertCount(1, $createCalls);
+        self::assertSame(2, $createCalls[0]['record']->attributes()['type'],
+            'State value must override a conflicting payload value.');
+    }
+
+    public function test_resolve_on_update_with_state_merges_fixed_attributes_into_payload(): void
+    {
+        $createCalls = [];
+        $updateCalls = [];
+        $embeddedDef = new StubEmbeddedDefinition();
+
+        $field = BelongsToField::make('author_id', 'App\\Models\\Author')
+            ->embed(StubEmbeddedDefinition::class)
+            ->withState(['type' => 2]);
+
+        $definition = $this->definitionWithFields([$field]);
+        $useCase = $this->makeUseCase(
+            $createCalls,
+            $updateCalls,
+            embeddedDefStub: $embeddedDef,
+            updateReturn: fn($key, $rec): EntityRecord => new EntityRecord($embeddedDef, ['id' => $key->value]),
+        );
+
+        $currentHost = new EntityRecord($definition, ['id' => 1, 'author_id' => 5]);
+
+        $useCase->resolveOnUpdate(
+            $definition,
+            $currentHost,
+            ['author_id' => ['name' => 'Charlie']],
+        );
+
+        self::assertCount(1, $updateCalls);
+        // State key 'type' => 2 must be present in the record passed to updateRecord
+        self::assertArrayHasKey('type', $updateCalls[0]['record']->attributes());
+        self::assertSame(2, $updateCalls[0]['record']->attributes()['type']);
+    }
 }

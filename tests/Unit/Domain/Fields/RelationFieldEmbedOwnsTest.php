@@ -102,4 +102,43 @@ final class RelationFieldEmbedOwnsTest extends TestCase
         $this->expectExceptionMessage('must extend');
         $field->embed(stdClass::class);
     }
+
+    public function test_state_is_empty_array_by_default(): void
+    {
+        $field = BelongsToField::make('author_id', 'App\\Models\\Author');
+
+        self::assertSame([], $field->state());
+    }
+
+    public function test_with_state_sets_state_array(): void
+    {
+        $field = BelongsToField::make('author_id', 'App\\Models\\Author')
+            ->withState(['type' => 2]);
+
+        self::assertSame(['type' => 2], $field->state());
+    }
+
+    public function test_with_state_returns_same_instance(): void
+    {
+        $field  = BelongsToField::make('author_id', 'App\\Models\\Author');
+        $result = $field->withState(['type' => 2]);
+
+        self::assertSame($field, $result);
+    }
+
+    public function test_with_state_works_on_has_one_field(): void
+    {
+        $field = HasOneField::make('profile', 'App\\Models\\Profile')
+            ->withState(['subtype' => 'basic']);
+
+        self::assertSame(['subtype' => 'basic'], $field->state());
+    }
+
+    public function test_with_state_supports_multiple_keys(): void
+    {
+        $field = BelongsToField::make('author_id', 'App\\Models\\Author')
+            ->withState(['type' => 2, 'source' => 'admin']);
+
+        self::assertSame(['type' => 2, 'source' => 'admin'], $field->state());
+    }
 }

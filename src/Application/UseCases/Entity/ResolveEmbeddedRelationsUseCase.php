@@ -84,6 +84,7 @@ final readonly class ResolveEmbeddedRelationsUseCase
             }
 
             $payload = $attributes[$name];
+            $payload = array_merge($payload, $field->state());
             $embeddedDef = ($this->resolveDefinition)((string) $field->embeddedDefinition());
 
             if ($field->relationKind() === 'belongsTo') {
@@ -143,6 +144,7 @@ final readonly class ResolveEmbeddedRelationsUseCase
             }
 
             $payload = $attributes[$name];
+            $payload = array_merge($payload, $field->state());
             $embeddedDef = ($this->resolveDefinition)((string) $field->embeddedDefinition());
 
             if ($field->relationKind() === 'belongsTo') {

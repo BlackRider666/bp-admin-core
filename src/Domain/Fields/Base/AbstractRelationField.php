@@ -14,6 +14,8 @@ abstract class AbstractRelationField extends AbstractField implements RelationFi
     protected string $displayFieldName = 'name';
     protected ?string $embeddedDefinitionClass = null;
     protected bool    $owned                   = false;
+    /** @var array<string, mixed> */
+    protected array $state = [];
 
     /**
      * @param bool $multiple Reserved for presenter usage — signals to the UI
@@ -172,5 +174,28 @@ abstract class AbstractRelationField extends AbstractField implements RelationFi
     public function isOwned(): bool
     {
         return $this->owned;
+    }
+
+    /**
+     * Fixed attributes always written to the embedded record on create/update,
+     * regardless of the submitted payload (e.g. a supertype/subtype discriminator
+     * column). State values win over payload values.
+     *
+     * Do NOT put the embedded record's primary key here: state sets column
+     * values only and must not carry the PK used by update/merge resolution.
+     *
+     * @param array<string, mixed> $state
+     */
+    public function withState(array $state): static
+    {
+        $this->state = $state;
+
+        return $this;
+    }
+
+    /** @return array<string, mixed> */
+    public function state(): array
+    {
+        return $this->state;
     }
 }
