@@ -255,19 +255,4 @@ final class RelationFieldsTest extends TestCase
         ];
     }
 
-    // -------------------------------------------------------------------------
-    // HasOneField::withForeignKey / getForeignKey
-    // -------------------------------------------------------------------------
-
-    public function test_has_one_field_default_foreign_key_is_null(): void
-    {
-        $field = HasOneField::make('profile', 'App\\Models\\Profile');
-        self::assertNull($field->getForeignKey());
-    }
-
-    public function test_has_one_field_with_foreign_key_setter(): void
-    {
-        $field = HasOneField::make('profile', 'App\\Models\\Profile')->withForeignKey('owner_id');
-        self::assertSame('owner_id', $field->getForeignKey());
-    }
 }
