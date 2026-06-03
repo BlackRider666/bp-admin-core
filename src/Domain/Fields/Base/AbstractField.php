@@ -14,12 +14,21 @@ use BlackParadise\CoreAdmin\Domain\Validation\RuleSet;
  *
  * Provides a fluent API for configuring field behaviour. Concrete field
  * classes must implement {@see type()} and may override any method.
+ *
+ * Auto-rules (type-derived validation rules) are provided by {@see typeRules()}
+ * which concrete classes override. They are always merged AFTER the explicit
+ * rule set so that developer-supplied rules take precedence in ordering, and
+ * they are never wiped by {@see withRules()} (which only resets the explicit
+ * set). Auto-rules appear in {@see rules()} and {@see ruleSet()} output.
  */
 abstract class AbstractField implements FieldContract
 {
     abstract public function type(): string;
 
     protected RuleSet $ruleSetInstance;
+
+    /** Maximum string/text length for auto-rule emission. Null = no auto max. */
+    protected ?int $maxLengthValue = null;
 
     public function __construct(
         protected string $name,
@@ -33,23 +42,7 @@ abstract class AbstractField implements FieldContract
         protected array $meta = [],
         protected bool $writable = true,
     ) {
-        $this->ruleSetInstance = new RuleSet();
-
-        // Migrate legacy string rules to RuleSet
-        foreach ($this->rules as $rule) {
-            $enumCase = Rule::tryFrom($rule);
-            if ($enumCase !== null) {
-                $this->ruleSetInstance->add($enumCase);
-            } else {
-                // Parameterized rule like "max:255"
-                $parts = explode(':', (string) $rule, 2);
-                if (count($parts) === 2) {
-                    $this->ruleSetInstance->add(new ParameterizedRule($parts[0], $parts[1]));
-                } else {
-                    $this->ruleSetInstance->add(new ParameterizedRule($rule, null));
-                }
-            }
-        }
+        $this->ruleSetInstance = $this->parseLegacyRules($this->rules);
     }
 
     // -------------------------------------------------------------------------
@@ -66,15 +59,38 @@ abstract class AbstractField implements FieldContract
         return $this->label ?? ucfirst(str_replace('_', ' ', $this->name));
     }
 
+    /**
+     * Returns type-derived auto-rules that are always appended after the
+     * explicit rule set. Concrete classes override this to emit structural
+     * constraints (e.g. `numeric`, `max:N`) without touching the explicit set.
+     *
+     * @return array<Rule|ParameterizedRule>
+     */
+    protected function typeRules(): array
+    {
+        return [];
+    }
+
     /** @deprecated Use ruleSet() instead. */
     public function rules(): array
     {
-        return $this->ruleSetInstance->toArray();
+        return $this->ruleSet()->toArray();
     }
 
     public function ruleSet(): RuleSet
     {
-        return $this->ruleSetInstance;
+        $typeRules = $this->typeRules();
+        if ($typeRules === []) {
+            return $this->ruleSetInstance;
+        }
+
+        // Merge auto-rules into a cloned set so $ruleSetInstance stays pristine
+        // (subsequent withRules() calls must still only reset the explicit rules).
+        $merged = clone $this->ruleSetInstance;
+        foreach ($typeRules as $autoRule) {
+            $merged->add($autoRule);
+        }
+        return $merged;
     }
 
     public function visibleOnList(): bool
@@ -166,22 +182,40 @@ abstract class AbstractField implements FieldContract
      */
     public function withRules(array $rules): static
     {
-        $this->ruleSetInstance = new RuleSet();
+        $this->ruleSetInstance = $this->parseLegacyRules($rules);
+
+        return $this;
+    }
+
+    /**
+     * Parse an array of legacy string rules (e.g. `['required', 'max:255']`)
+     * into a fresh {@see RuleSet} instance.
+     *
+     * Extracted from the constructor and {@see withRules()} to keep the
+     * migration logic in a single place. Behaviour is unchanged.
+     *
+     * @param array<int|string, string> $rules
+     */
+    private function parseLegacyRules(array $rules): RuleSet
+    {
+        $set = new RuleSet();
+
         foreach ($rules as $rule) {
             $enumCase = Rule::tryFrom($rule);
             if ($enumCase !== null) {
-                $this->ruleSetInstance->add($enumCase);
+                $set->add($enumCase);
             } else {
-                $parts = explode(':', (string) $rule, 2);
+                // Parameterized rule like "max:255"
+                $parts = explode(':', $rule, 2);
                 if (count($parts) === 2) {
-                    $this->ruleSetInstance->add(new ParameterizedRule($parts[0], $parts[1]));
+                    $set->add(new ParameterizedRule($parts[0], $parts[1]));
                 } else {
-                    $this->ruleSetInstance->add(new ParameterizedRule($rule, null));
+                    $set->add(new ParameterizedRule($rule, null));
                 }
             }
         }
 
-        return $this;
+        return $set;
     }
 
     /**
@@ -253,6 +287,20 @@ abstract class AbstractField implements FieldContract
     public function searchable(): static
     {
         return $this->filterable(true);
+    }
+
+    /**
+     * Set the maximum allowed length for string/text fields.
+     * Emits a `max:<n>` validation rule via {@see typeRules()}.
+     *
+     * Has no effect on field types that do not produce string data
+     * (e.g. boolean, date) — subclasses decide whether to honour it.
+     */
+    public function maxLength(int $length): static
+    {
+        $this->maxLengthValue = $length;
+
+        return $this;
     }
 
     public function withMeta(array $meta): static

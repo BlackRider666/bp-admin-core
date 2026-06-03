@@ -7,3 +7,5 @@ coverage.clover.xml
 .phpunit.result.cache
 .idea/
 .claude/
+# internal superpowers docs — NEVER ship in package (canonical location: <monorepo>/docs/superpowers)
+/docs/superpowers/

@@ -37,21 +37,6 @@ parameters:
 			path: src/Application/UseCases/Entity/ResolveEmbeddedRelationsUseCase.php
 
 		-
-			message: '''
-				#^Call to deprecated method rules\(\) of interface BlackParadise\\CoreAdmin\\Domain\\Contracts\\Fields\\FieldContract\:
-				Use ruleSet\(\) instead\. Returns string\-based rules for backward compatibility\.$#
-			'''
-			identifier: method.deprecated
-			count: 1
-			path: src/Application/UseCases/Entity/RuleBuilder.php
-
-		-
-			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
-			identifier: empty.notAllowed
-			count: 1
-			path: src/Application/UseCases/Entity/RuleBuilder.php
-
-		-
 			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Action\\ActionContract\:\:meta\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -282,13 +267,13 @@ parameters:
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
 			identifier: method.notFound
-			count: 11
+			count: 17
 			path: tests/Unit/Application/UseCases/Entity/BuildFormViewUseCaseTest.php
 
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\EntityDefinition\\EntityDefinitionContract\:\:method\(\)\.$#'
 			identifier: method.notFound
-			count: 12
+			count: 18
 			path: tests/Unit/Application/UseCases/Entity/BuildFormViewUseCaseTest.php
 
 		-
@@ -411,7 +396,7 @@ parameters:
 				Prefer using ruleSet\(\) and Rule enum methods\.$#
 			'''
 			identifier: method.deprecated
-			count: 4
+			count: 5
 			path: tests/Unit/Application/UseCases/Entity/RuleBuilderTest.php
 
 		-

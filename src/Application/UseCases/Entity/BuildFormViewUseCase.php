@@ -50,7 +50,7 @@ final readonly class BuildFormViewUseCase
 
         if ($this->relationOptionsProvider instanceof RelationOptionsProviderContract) {
             foreach ($fields as $field) {
-                $this->decorateRelationOptions($field);
+                $this->decorateRelationOptions($field, []);
             }
         }
 
@@ -59,11 +59,32 @@ final readonly class BuildFormViewUseCase
 
     /**
      * Attach option rows for belongsTo / belongsToMany relations to the field's
-     * meta payload. Embedded relations use a different render path and are
-     * skipped. We mutate in place because AbstractField->withMeta merges
+     * meta payload. We mutate in place because AbstractField->withMeta merges
      * additively and is fluent on the same instance.
+     *
+     * For embedded relations the field itself is a fieldset container — it does
+     * NOT receive an options list. Instead we build the fully-decorated list of
+     * embedded sub-fields (filtered by visibleOnForm(), with options injected)
+     * and attach them to the container field via meta key `'embeddedFields'`.
+     * The presenter/view reads `$field->meta()['embeddedFields']` to render the
+     * nested fieldset WITHOUT repeating `new $embeddedDefinitionClass()->fields()`,
+     * which would yield fresh un-decorated instances and lose all options.
+     *
+     * FK-skip (omitting a belongsTo that points back to the host model) is a
+     * presenter-level concern that depends on the host model class — it remains
+     * in the view layer where that context is available.
+     *
+     * The $visited set (map of class-string → true) prevents infinite recursion
+     * when a developer misconfigures a cyclic embed (A embeds B embeds A, or A
+     * embeds itself). On a cycle the offending embedded definition is silently
+     * skipped — the sub-fields it would have produced are absent, which is the
+     * safest degradation: the form renders without that subtree rather than
+     * crashing with a stack overflow.
+     *
+     * @param array<class-string, true> $visited Already-processed embedded definition classes
+     *                                           on the current recursion path.
      */
-    private function decorateRelationOptions(FieldContract $field): void
+    private function decorateRelationOptions(FieldContract $field, array $visited): void
     {
         if (!$this->relationOptionsProvider instanceof RelationOptionsProviderContract) {
             return;
@@ -71,9 +92,48 @@ final readonly class BuildFormViewUseCase
         if (!$field instanceof RelationFieldContract) {
             return;
         }
+
         if ($field->isEmbedded()) {
+            // The embedded field is a fieldset container. Build the decorated
+            // sub-field list exactly once and attach it to the container's meta
+            // so the renderer can consume it directly.
+            $embeddedDefinitionClass = $field->embeddedDefinition();
+            if ($embeddedDefinitionClass === null || !($field instanceof AbstractField)) {
+                return;
+            }
+
+            // Cycle guard: if this definition class is already on the current
+            // recursion path, skip it entirely to prevent a stack overflow.
+            if (isset($visited[$embeddedDefinitionClass])) {
+                return;
+            }
+
+            // Mark this definition as visited before descending so that any
+            // embedded field inside it pointing back to the same class is caught.
+            // Build a new array so the type annotation is preserved for PHPStan.
+            /** @var array<class-string, true> $nextVisited */
+            $nextVisited = $visited + [$embeddedDefinitionClass => true];
+
+            /** @var EntityDefinitionContract $embeddedDef */
+            $embeddedDef = new $embeddedDefinitionClass();
+
+            // Filter to form-visible sub-fields, then decorate each relation sub-field.
+            $embeddedFields = array_values(array_filter(
+                $embeddedDef->fields(),
+                fn(FieldContract $f): bool => $f->visibleOnForm(),
+            ));
+
+            foreach ($embeddedFields as $embeddedField) {
+                // Pass the $nextVisited set down so cycles at any depth are caught.
+                $this->decorateRelationOptions($embeddedField, $nextVisited);
+            }
+
+            // Attach the decorated sub-fields to the container so the view
+            // reads from here, not from a fresh fields() call.
+            $field->withMeta(['embeddedFields' => $embeddedFields]);
             return;
         }
+
         if (!in_array($field->relationKind(), ['belongsTo', 'belongsToMany'], true)) {
             return;
         }

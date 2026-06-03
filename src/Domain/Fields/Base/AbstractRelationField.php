@@ -16,6 +16,8 @@ abstract class AbstractRelationField extends AbstractField implements RelationFi
     protected bool    $owned                   = false;
     /** @var array<string, mixed> */
     protected array $state = [];
+    /** @var list<array{column: string, value: mixed}> */
+    protected array $optionConstraintsList = [];
 
     /**
      * @param bool $multiple Reserved for presenter usage — signals to the UI
@@ -197,5 +199,50 @@ abstract class AbstractRelationField extends AbstractField implements RelationFi
     public function state(): array
     {
         return $this->state;
+    }
+
+    /**
+     * Constrain the option list to rows where $column equals $value.
+     *
+     * Multiple calls accumulate constraints (AND semantics). The infrastructure
+     * provider (e.g. EloquentRelationOptionsProvider) reads these via
+     * {@see optionConstraints()} and applies them as WHERE clauses.
+     *
+     * Example:
+     *   BelongsToField::make('city_id', City::class)->whereOption('country_id', 1)
+     */
+    public function whereOption(string $column, mixed $value): static
+    {
+        $this->optionConstraintsList[] = ['column' => $column, 'value' => $value];
+
+        return $this;
+    }
+
+    /**
+     * Batch version of {@see whereOption()} — accepts an associative array of
+     * column => value pairs. All constraints are appended (AND semantics).
+     *
+     * Example:
+     *   BelongsToManyField::make('tags', Tag::class)->scopeOptions(['type' => 'article', 'active' => true])
+     *
+     * @param array<string, mixed> $constraints
+     */
+    public function scopeOptions(array $constraints): static
+    {
+        foreach ($constraints as $column => $value) {
+            $this->whereOption($column, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return list<array{column: string, value: mixed}>
+     */
+    public function optionConstraints(): array
+    {
+        return $this->optionConstraintsList;
     }
 }
