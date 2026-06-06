@@ -46,16 +46,6 @@ final class MorphFileField extends AbstractField
     private string  $directory = '';
     private string  $disk      = '';
 
-    public function __construct(
-        string $name,
-        ?string $label = null,
-        array $rules = [],
-    ) {
-        parent::__construct(name: $name, label: $label, rules: $rules);
-        $this->ruleSetInstance->add(Rule::Nullable);
-        $this->ruleSetInstance->add(Rule::File);
-    }
-
     public static function make(string $name): self
     {
         return new self($name);
@@ -64,6 +54,11 @@ final class MorphFileField extends AbstractField
     public function type(): string
     {
         return 'morph_file';
+    }
+
+    protected function typeRules(): array
+    {
+        return [Rule::Nullable, Rule::File];
     }
 
     public function morphName(string $name): self

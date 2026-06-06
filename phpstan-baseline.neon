@@ -7,22 +7,97 @@ parameters:
 			path: src/Application/Exceptions/EntityNotFoundException.php
 
 		-
-			message: '#^Method BlackParadise\\CoreAdmin\\Application\\UseCases\\Auth\\BuildLoginFormViewUseCase\:\:execute\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/ResolveEmbeddedRelationsValidationTest.php
+
+		-
+			message: '#^Method Tests\\Unit\\Application\\UseCases\\Entity\\ResolveEmbeddedRelationsValidationTest\:\:definitionWithFields\(\) has parameter \$fields with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: src/Application/UseCases/Auth/BuildLoginFormViewUseCase.php
+			path: tests/Unit/Application/UseCases/Entity/ResolveEmbeddedRelationsValidationTest.php
+
+		-
+			message: '#^Parameter \$validateRecord of class BlackParadise\\CoreAdmin\\Application\\UseCases\\Entity\\ResolveEmbeddedRelationsUseCase constructor expects \(Closure\(BlackParadise\\CoreAdmin\\Domain\\Contracts\\EntityDefinition\\EntityDefinitionContract, array\<string, mixed\>, list\<string\>\)\: void\)\|null, callable\(\)\: mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/ResolveEmbeddedRelationsValidationTest.php
+
+		-
+			message: '#^Method Tests\\Unit\\Application\\UseCases\\Entity\\RuleBuilderContextTest\:\:definitionWithRequiredFields\(\) has parameter \$fields with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/RuleBuilderContextTest.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''BlackParadise\\\\CoreAdmin\\\\Domain\\\\Contracts\\\\ValueHasherContract'' and ''hash'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/Domain/Contracts/ValueHasherContractTest.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''BlackParadise\\\\CoreAdmin\\\\Domain\\\\Contracts\\\\ValueHasherContract'' and ''isHashed'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/Domain/Contracts/ValueHasherContractTest.php
+
+		-
+			message: '#^Dynamic call to static method PHPUnit\\Framework\\TestCase\:\:createStub\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: tests/Unit/Domain/Entity/EntityRecordGetByPathTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 5
+			path: tests/Unit/Domain/Fields/StructuralRulesSurviveWithRulesTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\FileField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 5
+			path: tests/Unit/Domain/Fields/StructuralRulesSurviveWithRulesTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\ImageField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 5
+			path: tests/Unit/Domain/Fields/StructuralRulesSurviveWithRulesTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Prefer using ruleSet\(\) and Rule enum methods\.$#
+			'''
+			identifier: method.deprecated
+			count: 9
+			path: tests/Unit/Domain/Fields/StructuralRulesSurviveWithRulesTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Prefer using ruleSet\(\) and Rule enum methods\.$#
+			'''
+			identifier: method.deprecated
+			count: 4
+			path: tests/Unit/Domain/Fields/TypeRulesSurviveWithRulesTest.php
 
 		-
 			message: '#^Method BlackParadise\\CoreAdmin\\Application\\UseCases\\Auth\\LoginUseCase\:\:execute\(\) has parameter \$credentials with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Application/UseCases/Auth/LoginUseCase.php
-
-		-
-			message: '#^Method BlackParadise\\CoreAdmin\\Application\\UseCases\\Dashboard\\BuildDashboardViewUseCase\:\:execute\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Application/UseCases/Dashboard/BuildDashboardViewUseCase.php
 
 		-
 			message: '#^Parameter \#1 \$value of class BlackParadise\\CoreAdmin\\Domain\\ValueObjects\\EntityKey constructor expects int\|string, mixed given\.$#'
@@ -199,12 +274,6 @@ parameters:
 			path: src/Domain/Fields/FileField.php
 
 		-
-			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\FileField\:\:__construct\(\) has parameter \$rules with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Fields/FileField.php
-
-		-
 			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\HiddenField\:\:__construct\(\) has parameter \$rules with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -217,21 +286,9 @@ parameters:
 			path: src/Domain/Fields/ImageField.php
 
 		-
-			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\ImageField\:\:__construct\(\) has parameter \$rules with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Fields/ImageField.php
-
-		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
 			identifier: empty.notAllowed
 			count: 4
-			path: src/Domain/Fields/MorphFileField.php
-
-		-
-			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\MorphFileField\:\:__construct\(\) has parameter \$rules with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
 			path: src/Domain/Fields/MorphFileField.php
 
 		-

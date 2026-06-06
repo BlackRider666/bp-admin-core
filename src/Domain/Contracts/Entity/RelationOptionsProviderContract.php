@@ -31,4 +31,17 @@ interface RelationOptionsProviderContract
      * @return list<array{id: mixed, label: string}>
      */
     public function options(RelationFieldContract $field, int $limit = 1000): array;
+
+    /**
+     * Per-type option lists for a morphTo field's allowed targets.
+     *
+     * Each entry describes one polymorphic type with its own option list so
+     * the UI can render a two-step picker (choose type → choose record).
+     * Implementations should iterate over the field's morphTypeMap() and
+     * query each target model for `{id, label}` rows.
+     *
+     * @param RelationFieldContract $field A MorphToField instance.
+     * @return list<array{value: string, label: string, options: list<array{id: int|string, label: string}>}>
+     */
+    public function morphOptions(RelationFieldContract $field): array;
 }

@@ -134,6 +134,13 @@ final readonly class BuildFormViewUseCase
             return;
         }
 
+        if ($field->relationKind() === 'morphTo') {
+            if ($field instanceof AbstractField) {
+                $field->withMeta(['morphOptions' => $this->relationOptionsProvider->morphOptions($field)]);
+            }
+            return;
+        }
+
         if (!in_array($field->relationKind(), ['belongsTo', 'belongsToMany'], true)) {
             return;
         }

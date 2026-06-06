@@ -36,8 +36,11 @@ final readonly class RuleBuilder
      *                              Non-string values and empty strings are silently
      *                              dropped to prevent malformed keys like "title.";
      *                              the constructor sanitises the raw adapter input.
+     * @param string $context Validation context: 'create' (default) or 'update'.
+     *                        In 'update' context, fields absent from $presentKeys
+     *                        have their 'required' rule relaxed to 'sometimes'.
      */
-    public function __construct(array $locales = [])
+    public function __construct(array $locales = [], private string $context = 'create')
     {
         $this->locales = array_values(
             array_filter($locales, fn(mixed $l): bool => is_string($l) && $l !== ''),
@@ -47,9 +50,13 @@ final readonly class RuleBuilder
     /**
      * Build validation rules for all fields in the definition.
      *
+     * @param list<string> $presentKeys Keys present in the incoming payload.
+     *                                  Only relevant in 'update' context — absent fields
+     *                                  have their 'required' rule relaxed to 'sometimes'.
+     *                                  In 'create' context this parameter is ignored.
      * @return array<string, array<string>>
      */
-    public function build(EntityDefinitionContract $definition): array
+    public function build(EntityDefinitionContract $definition, array $presentKeys = []): array
     {
         $rules = [];
         foreach ($definition->fields() as $field) {
@@ -60,13 +67,22 @@ final readonly class RuleBuilder
                 }
                 // Expand to per-locale dot-notation keys.
                 foreach ($this->locales as $locale) {
-                    $rules[$field->name() . '.' . $locale] = $fieldRules;
+                    $localeKey   = $field->name() . '.' . $locale;
+                    $localeRules = $fieldRules;
+                    if ($this->context === 'update' && !in_array($field->name(), $presentKeys, true)) {
+                        $localeRules = $this->relaxRequired($localeRules);
+                    }
+                    $rules[$localeKey] = $localeRules;
                 }
             } else {
                 $fieldRules = $field->ruleSet()->toArray();
-                if ($fieldRules !== []) {
-                    $rules[$field->name()] = $fieldRules;
+                if ($fieldRules === []) {
+                    continue;
                 }
+                if ($this->context === 'update' && !in_array($field->name(), $presentKeys, true)) {
+                    $fieldRules = $this->relaxRequired($fieldRules);
+                }
+                $rules[$field->name()] = $fieldRules;
             }
         }
         return $rules;
@@ -80,5 +96,23 @@ final readonly class RuleBuilder
     public static function fromDefinition(EntityDefinitionContract $definition): array
     {
         return (new self())->build($definition);
+    }
+
+    /**
+     * In 'update' context, replace 'required' with 'sometimes' for absent keys.
+     * If 'required' is not present the rules are returned unchanged.
+     *
+     * @param array<string> $fieldRules
+     * @return array<string>
+     */
+    private function relaxRequired(array $fieldRules): array
+    {
+        if (!in_array('required', $fieldRules, true)) {
+            return $fieldRules;
+        }
+
+        $relaxed = array_values(array_filter($fieldRules, fn(string $r): bool => $r !== 'required'));
+        array_unshift($relaxed, 'sometimes');
+        return $relaxed;
     }
 }

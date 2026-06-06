@@ -44,11 +44,17 @@ final readonly class ResolveEmbeddedRelationsUseCase
      * @param Closure(EntityDefinitionContract, EntityRecordContract): EntityRecordContract $createRecord
      * @param Closure(EntityDefinitionContract, EntityKey, EntityRecordContract): EntityRecordContract $updateRecord
      * @param Closure(string): EntityDefinitionContract $resolveDefinition
+     * @param Closure(EntityDefinitionContract, array<string,mixed>, list<string>): void|null $validateRecord
+     *                                                                                                        Optional child-record validator. When provided, hasMany/morphMany children are
+     *                                                                                                        validated before host persistence. The third argument is a list of field names
+     *                                                                                                        that must be skipped during validation (back-FK fields pointing to the host).
+     *                                                                                                        Defaults to a no-op (no validation).
      */
     public function __construct(
         private Closure $createRecord,
         private Closure $updateRecord,
         private Closure $resolveDefinition,
+        private ?Closure $validateRecord = null,
     ) {}
 
     /**
@@ -83,16 +89,19 @@ final readonly class ResolveEmbeddedRelationsUseCase
                 continue;
             }
 
+            if ($field->relationKind() === 'hasMany' || $field->relationKind() === 'morphMany') {
+                // Validate each child; leave attributes[$name] intact for RelationWriter.
+                $this->validateHasManyChildren($definition, $field, $name, $attributes[$name]);
+                continue;
+            }
+
             $payload = $attributes[$name];
             $payload = array_merge($payload, $field->state());
             $embeddedDef = ($this->resolveDefinition)((string) $field->embeddedDefinition());
 
             if ($field->relationKind() === 'belongsTo') {
                 // Create child first, then substitute FK id.
-                $created = ($this->createRecord)(
-                    $embeddedDef,
-                    new EntityRecord($embeddedDef, $payload),
-                );
+                $created = $this->createChildOrPrefixErrors($embeddedDef, $payload, $name);
                 $attributes[$name] = $created->id();
             } elseif ($field->relationKind() === 'hasOne') {
                 // Host first, child second — defer the child.
@@ -143,6 +152,12 @@ final readonly class ResolveEmbeddedRelationsUseCase
                 continue;
             }
 
+            if ($field->relationKind() === 'hasMany' || $field->relationKind() === 'morphMany') {
+                // Validate each child; leave attributes[$name] intact for RelationWriter.
+                $this->validateHasManyChildren($definition, $field, $name, $attributes[$name]);
+                continue;
+            }
+
             $payload = $attributes[$name];
             $payload = array_merge($payload, $field->state());
             $embeddedDef = ($this->resolveDefinition)((string) $field->embeddedDefinition());
@@ -168,17 +183,18 @@ final readonly class ResolveEmbeddedRelationsUseCase
 
                 if ($existingFkId === null) {
                     // FK explicitly null — create a new related record.
-                    $created = ($this->createRecord)(
-                        $embeddedDef,
-                        new EntityRecord($embeddedDef, $payload),
-                    );
+                    $created = $this->createChildOrPrefixErrors($embeddedDef, $payload, $name);
                     $attributes[$name] = $created->id();
                 } else {
-                    ($this->updateRecord)(
-                        $embeddedDef,
-                        new EntityKey((string) $existingFkId, $embeddedDef->keyType()),
-                        new EntityRecord($embeddedDef, $payload),
-                    );
+                    try {
+                        ($this->updateRecord)(
+                            $embeddedDef,
+                            new EntityKey((string) $existingFkId, $embeddedDef->keyType()),
+                            new EntityRecord($embeddedDef, $payload),
+                        );
+                    } catch (ValidationException $e) {
+                        throw new ValidationException($this->prefixErrorKeys($e->errors(), $name));
+                    }
                     $attributes[$name] = $existingFkId; // keep existing FK
                 }
             } elseif ($field->relationKind() === 'hasOne') {
@@ -187,11 +203,15 @@ final readonly class ResolveEmbeddedRelationsUseCase
 
                 if ($existingId !== null) {
                     // Existing child — update it eagerly.
-                    ($this->updateRecord)(
-                        $embeddedDef,
-                        new EntityKey((string) $existingId, $embeddedDef->keyType()),
-                        new EntityRecord($embeddedDef, $payload),
-                    );
+                    try {
+                        ($this->updateRecord)(
+                            $embeddedDef,
+                            new EntityKey((string) $existingId, $embeddedDef->keyType()),
+                            new EntityRecord($embeddedDef, $payload),
+                        );
+                    } catch (ValidationException $e) {
+                        throw new ValidationException($this->prefixErrorKeys($e->errors(), $name));
+                    }
                 } else {
                     // No child yet — defer creation until after the host is saved
                     // so the host's id is available as the FK value (same path as store).
@@ -202,6 +222,102 @@ final readonly class ResolveEmbeddedRelationsUseCase
         }
 
         return ['attributes' => $attributes, 'defer' => $defer];
+    }
+
+    /**
+     * Validate each child in a hasMany/morphMany payload. Collects all errors
+     * and re-throws as a single ValidationException with prefixed keys.
+     * No-op when no $validateRecord closure was provided.
+     *
+     * The back-FK fields (child belongsTo fields pointing to the host model)
+     * are passed as a skip list to the validator — the form omits them and the
+     * ORM auto-assigns them on write ($host->rel()->create()), so they must not
+     * be required during validation.
+     *
+     * @param array<mixed, mixed> $children
+     * @throws ValidationException When any child fails validation.
+     */
+    private function validateHasManyChildren(
+        EntityDefinitionContract $hostDefinition,
+        AbstractRelationField $field,
+        string $name,
+        array $children,
+    ): void {
+        if (!$this->validateRecord instanceof Closure) {
+            return;
+        }
+        $embeddedDef = ($this->resolveDefinition)((string) $field->embeddedDefinition());
+        $skipFields  = $this->backForeignKeyFields($embeddedDef, $hostDefinition->modelClass());
+
+        $errors = [];
+        foreach ($children as $i => $child) {
+            if (!is_array($child)) {
+                continue;
+            }
+            try {
+                ($this->validateRecord)($embeddedDef, array_merge($child, $field->state()), $skipFields);
+            } catch (ValidationException $e) {
+                foreach ($e->errors() as $key => $messages) {
+                    $errors[$name . '.' . $i . '.' . $key] = $messages;
+                }
+            }
+        }
+        if ($errors !== []) {
+            throw new ValidationException($errors);
+        }
+    }
+
+    /**
+     * Names of child belongsTo fields pointing back to the host model. The ORM
+     * auto-assigns these on write ($host->rel()->create()) and the form omits
+     * them, so child validation must skip them — mirroring the view layer.
+     *
+     * @return list<string>
+     */
+    private function backForeignKeyFields(EntityDefinitionContract $embeddedDef, string $hostModelClass): array
+    {
+        $skip = [];
+        foreach ($embeddedDef->fields() as $f) {
+            if ($f instanceof AbstractRelationField
+                && $f->relationKind() === 'belongsTo'
+                && $f->target() === $hostModelClass) {
+                $skip[] = $f->name();
+            }
+        }
+        return $skip;
+    }
+
+    /**
+     * Call createRecord and re-throw any ValidationException with prefixed error keys.
+     *
+     * @param array<string, mixed> $payload
+     * @throws ValidationException With prefixed keys on failure.
+     */
+    private function createChildOrPrefixErrors(
+        EntityDefinitionContract $def,
+        array $payload,
+        string $prefix,
+    ): EntityRecordContract {
+        try {
+            return ($this->createRecord)($def, new EntityRecord($def, $payload));
+        } catch (ValidationException $e) {
+            throw new ValidationException($this->prefixErrorKeys($e->errors(), $prefix));
+        }
+    }
+
+    /**
+     * Prefix all error keys with "$prefix.".
+     *
+     * @param array<string, array<int, string>> $errors
+     * @return array<string, array<int, string>>
+     */
+    private function prefixErrorKeys(array $errors, string $prefix): array
+    {
+        $out = [];
+        foreach ($errors as $key => $messages) {
+            $out[$prefix . '.' . $key] = $messages;
+        }
+        return $out;
     }
 
     /**

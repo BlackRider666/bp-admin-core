@@ -149,7 +149,12 @@ final class AbstractRelationFieldTest extends TestCase
 
     public function test_with_rules_replaces_rules_on_relation_field(): void
     {
-        $field = BelongsToField::make('user', 'App\\Models\\User')
+        // Use a relation field WITHOUT typeRules() as the vehicle so this test
+        // isolates the inherited withRules() replacement behaviour. BelongsToField
+        // now emits auto type-rules (nullable + relation_exists) that are merged
+        // on top of the explicit set in rules() — that interaction is covered by
+        // TypeRulesSurviveWithRulesTest, not here.
+        $field = HasManyField::make('items', 'App\\Models\\Item')
             ->withRules(['exists:users,id']);
 
         self::assertSame(['exists:users,id'], $field->rules());

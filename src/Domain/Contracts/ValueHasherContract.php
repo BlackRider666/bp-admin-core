@@ -7,4 +7,6 @@ namespace BlackParadise\CoreAdmin\Domain\Contracts;
 interface ValueHasherContract
 {
     public function hash(string $value): string;
+
+    public function isHashed(string $value): bool;
 }

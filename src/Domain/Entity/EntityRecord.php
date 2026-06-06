@@ -69,7 +69,7 @@ final class EntityRecord implements EntityRecordContract
             if (is_array($current)) {
                 $current = $current[$segment] ?? null;
             } elseif ($current instanceof EntityRecordContract) {
-                $current = $current->getByPath($segment);
+                $current = $current->relation($segment) ?? $current->get($segment);
             } elseif (is_object($current)) {
                 $current = $current->{$segment} ?? null;
             } else {

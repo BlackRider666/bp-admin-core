@@ -56,7 +56,16 @@ abstract class AbstractField implements FieldContract
 
     public function label(): string
     {
-        return $this->label ?? ucfirst(str_replace('_', ' ', $this->name));
+        if ($this->label !== null) {
+            return $this->label;
+        }
+        // Insert spaces before camelCase humps (e.g. "executiveEditor" → "executive Editor").
+        $spaced = preg_replace('/(?<=[a-z0-9])(?=[A-Z])/', ' ', $this->name) ?? $this->name;
+        // Split on underscores.
+        $spaced = str_replace('_', ' ', $spaced);
+        // Collapse multiple spaces and trim.
+        $spaced = preg_replace('/\s+/', ' ', trim($spaced)) ?? $spaced;
+        return ucfirst($spaced);
     }
 
     /**
@@ -87,7 +96,14 @@ abstract class AbstractField implements FieldContract
         // Merge auto-rules into a cloned set so $ruleSetInstance stays pristine
         // (subsequent withRules() calls must still only reset the explicit rules).
         $merged = clone $this->ruleSetInstance;
+        // A field explicitly marked required() must never also receive an
+        // auto "nullable" type-rule (which Laravel treats as winning, making the
+        // field effectively optional). Suppress auto-Nullable when Required is set.
+        $hasRequired = $merged->has(Rule::Required);
         foreach ($typeRules as $autoRule) {
+            if ($hasRequired && $autoRule === Rule::Nullable) {
+                continue;
+            }
             $merged->add($autoRule);
         }
         return $merged;

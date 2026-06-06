@@ -31,17 +31,6 @@ final class ImageField extends AbstractField
     private string $disk = '';
     private int $maxWidth = 0;
 
-    public function __construct(
-        string $name,
-        ?string $label = null,
-        array $rules = [],
-    ) {
-        parent::__construct(name: $name, label: $label, rules: $rules);
-        $this->ruleSetInstance->add(Rule::Nullable);
-        $this->ruleSetInstance->add(Rule::File);
-        $this->ruleSetInstance->add(Rule::Image);
-    }
-
     public static function make(string $name): self
     {
         return new self($name);
@@ -50,6 +39,11 @@ final class ImageField extends AbstractField
     public function type(): string
     {
         return 'image';
+    }
+
+    protected function typeRules(): array
+    {
+        return [Rule::Nullable, Rule::File, Rule::Image];
     }
 
     public function directory(string $dir): self
