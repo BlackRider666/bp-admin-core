@@ -32,6 +32,7 @@ final class NumberField extends AbstractField
     public function integer(): self
     {
         $this->integerOnly = true;
+        $this->invalidateRuleSetCache();
 
         return $this;
     }
@@ -47,6 +48,7 @@ final class NumberField extends AbstractField
     public function min(int|float $min): self
     {
         $this->minValue = $min;
+        $this->invalidateRuleSetCache();
 
         return $this;
     }
@@ -57,6 +59,7 @@ final class NumberField extends AbstractField
     public function max(int|float $max): self
     {
         $this->maxValue = $max;
+        $this->invalidateRuleSetCache();
 
         return $this;
     }

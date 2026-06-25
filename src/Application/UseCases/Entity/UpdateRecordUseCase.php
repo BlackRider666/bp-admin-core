@@ -4,24 +4,22 @@ declare(strict_types=1);
 
 namespace BlackParadise\CoreAdmin\Application\UseCases\Entity;
 
-use BlackParadise\CoreAdmin\Application\Exceptions\EntityNotFoundException;
 use BlackParadise\CoreAdmin\Domain\Contracts\Auth\AuthorizationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Entity\EntityRecordContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Events\EventDispatcherContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Validation\ValidationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Events\EntityUpdated;
+use BlackParadise\CoreAdmin\Domain\Exceptions\EntityNotFoundException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\UnauthorizedException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\ValidationException;
 use BlackParadise\CoreAdmin\Domain\Mutators\EntityMutatorInterface;
-use BlackParadise\CoreAdmin\Domain\Repositories\EntityRepositoryInterface;
 use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityKey;
 use LogicException;
 
 final readonly class UpdateRecordUseCase
 {
     public function __construct(
-        private EntityRepositoryInterface $repository,
         private EntityMutatorInterface $mutator,
         private AuthorizationProviderContract $authorizationProvider,
         private EntityDefinitionContract $entityDefinition,
@@ -38,10 +36,6 @@ final readonly class UpdateRecordUseCase
     {
         if (!$this->authorizationProvider->can('update', $this->entityDefinition)) {
             throw new UnauthorizedException($this->entityDefinition->name(), 'update');
-        }
-
-        if (!$this->repository->exists($this->entityDefinition, $key)) {
-            throw new EntityNotFoundException($this->entityDefinition->name(), $key->value);
         }
 
         $this->validator->validate(

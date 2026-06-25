@@ -30,6 +30,13 @@ abstract class AbstractField implements FieldContract
     /** Maximum string/text length for auto-rule emission. Null = no auto max. */
     protected ?int $maxLengthValue = null;
 
+    /**
+     * Memoized result of path-2 ruleSet() (when typeRules() !== []).
+     * Null means the cache is invalid and must be recomputed on next call.
+     * Invalidated by every mutator that can change the merged rule output.
+     */
+    private ?RuleSet $mergedRuleSetCache = null;
+
     public function __construct(
         protected string $name,
         protected ?string $label = null,
@@ -93,6 +100,13 @@ abstract class AbstractField implements FieldContract
             return $this->ruleSetInstance;
         }
 
+        // Path-2: typeRules() is non-empty — memoize the merged result so
+        // repeat calls (e.g. during validation building) avoid clone+merge.
+        // The cache is invalidated by every mutator that can change the output.
+        if ($this->mergedRuleSetCache instanceof RuleSet) {
+            return $this->mergedRuleSetCache;
+        }
+
         // Merge auto-rules into a cloned set so $ruleSetInstance stays pristine
         // (subsequent withRules() calls must still only reset the explicit rules).
         $merged = clone $this->ruleSetInstance;
@@ -106,7 +120,20 @@ abstract class AbstractField implements FieldContract
             }
             $merged->add($autoRule);
         }
-        return $merged;
+
+        return $this->mergedRuleSetCache = $merged;
+    }
+
+    /**
+     * Invalidate the memoized merged RuleSet cache.
+     *
+     * Must be called by every mutator in this class (and in subclasses) that
+     * can affect the output of typeRules() or the contents of ruleSetInstance,
+     * so that the next ruleSet() call recomputes the merged result.
+     */
+    protected function invalidateRuleSetCache(): void
+    {
+        $this->mergedRuleSetCache = null;
     }
 
     public function visibleOnList(): bool
@@ -178,6 +205,7 @@ abstract class AbstractField implements FieldContract
         } else {
             $this->ruleSetInstance->remove(Rule::Required);
         }
+        $this->invalidateRuleSetCache();
 
         return $this;
     }
@@ -188,6 +216,7 @@ abstract class AbstractField implements FieldContract
     public function nullable(): static
     {
         $this->ruleSetInstance->remove(Rule::Required)->add(Rule::Nullable);
+        $this->invalidateRuleSetCache();
 
         return $this;
     }
@@ -199,6 +228,7 @@ abstract class AbstractField implements FieldContract
     public function withRules(array $rules): static
     {
         $this->ruleSetInstance = $this->parseLegacyRules($rules);
+        $this->invalidateRuleSetCache();
 
         return $this;
     }
@@ -240,6 +270,7 @@ abstract class AbstractField implements FieldContract
     public function addRule(Rule|ParameterizedRule $rule): static
     {
         $this->ruleSetInstance->add($rule);
+        $this->invalidateRuleSetCache();
 
         return $this;
     }
@@ -315,6 +346,7 @@ abstract class AbstractField implements FieldContract
     public function maxLength(int $length): static
     {
         $this->maxLengthValue = $length;
+        $this->invalidateRuleSetCache();
 
         return $this;
     }

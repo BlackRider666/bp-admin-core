@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace BlackParadise\CoreAdmin\Application\UseCases\Entity;
 
-use BlackParadise\CoreAdmin\Application\Exceptions\EntityNotFoundException;
 use BlackParadise\CoreAdmin\Domain\Contracts\Auth\AuthorizationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Events\EventDispatcherContract;
 use BlackParadise\CoreAdmin\Domain\Events\EntityDeleted;
+use BlackParadise\CoreAdmin\Domain\Exceptions\EntityNotFoundException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\UnauthorizedException;
 use BlackParadise\CoreAdmin\Domain\Mutators\EntityMutatorInterface;
 use BlackParadise\CoreAdmin\Domain\Repositories\EntityRepositoryInterface;

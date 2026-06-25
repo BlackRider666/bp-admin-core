@@ -68,6 +68,7 @@ final class EnumField extends AbstractField
     public function multiple(bool $multiple = true): self
     {
         $this->multiple = $multiple;
+        $this->invalidateRuleSetCache();
 
         return $this;
     }

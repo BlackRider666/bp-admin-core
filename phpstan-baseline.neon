@@ -4,94 +4,7 @@ parameters:
 			message: '#^Part \$key \(mixed\) of encapsed string cannot be cast to string\.$#'
 			identifier: encapsedStringPart.nonString
 			count: 1
-			path: src/Application/Exceptions/EntityNotFoundException.php
-
-		-
-			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
-			identifier: empty.notAllowed
-			count: 1
-			path: tests/Unit/Application/UseCases/Entity/ResolveEmbeddedRelationsValidationTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Application\\UseCases\\Entity\\ResolveEmbeddedRelationsValidationTest\:\:definitionWithFields\(\) has parameter \$fields with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Application/UseCases/Entity/ResolveEmbeddedRelationsValidationTest.php
-
-		-
-			message: '#^Parameter \$validateRecord of class BlackParadise\\CoreAdmin\\Application\\UseCases\\Entity\\ResolveEmbeddedRelationsUseCase constructor expects \(Closure\(BlackParadise\\CoreAdmin\\Domain\\Contracts\\EntityDefinition\\EntityDefinitionContract, array\<string, mixed\>, list\<string\>\)\: void\)\|null, callable\(\)\: mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Unit/Application/UseCases/Entity/ResolveEmbeddedRelationsValidationTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Application\\UseCases\\Entity\\RuleBuilderContextTest\:\:definitionWithRequiredFields\(\) has parameter \$fields with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Application/UseCases/Entity/RuleBuilderContextTest.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''BlackParadise\\\\CoreAdmin\\\\Domain\\\\Contracts\\\\ValueHasherContract'' and ''hash'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: tests/Unit/Domain/Contracts/ValueHasherContractTest.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''BlackParadise\\\\CoreAdmin\\\\Domain\\\\Contracts\\\\ValueHasherContract'' and ''isHashed'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: tests/Unit/Domain/Contracts/ValueHasherContractTest.php
-
-		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\TestCase\:\:createStub\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: tests/Unit/Domain/Entity/EntityRecordGetByPathTest.php
-
-		-
-			message: '''
-				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
-				Use ruleSet\(\) instead\.$#
-			'''
-			identifier: method.deprecated
-			count: 5
-			path: tests/Unit/Domain/Fields/StructuralRulesSurviveWithRulesTest.php
-
-		-
-			message: '''
-				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\FileField\:
-				Use ruleSet\(\) instead\.$#
-			'''
-			identifier: method.deprecated
-			count: 5
-			path: tests/Unit/Domain/Fields/StructuralRulesSurviveWithRulesTest.php
-
-		-
-			message: '''
-				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\ImageField\:
-				Use ruleSet\(\) instead\.$#
-			'''
-			identifier: method.deprecated
-			count: 5
-			path: tests/Unit/Domain/Fields/StructuralRulesSurviveWithRulesTest.php
-
-		-
-			message: '''
-				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
-				Prefer using ruleSet\(\) and Rule enum methods\.$#
-			'''
-			identifier: method.deprecated
-			count: 9
-			path: tests/Unit/Domain/Fields/StructuralRulesSurviveWithRulesTest.php
-
-		-
-			message: '''
-				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
-				Prefer using ruleSet\(\) and Rule enum methods\.$#
-			'''
-			identifier: method.deprecated
-			count: 4
-			path: tests/Unit/Domain/Fields/TypeRulesSurviveWithRulesTest.php
+			path: src/Domain/Exceptions/EntityNotFoundException.php
 
 		-
 			message: '#^Method BlackParadise\\CoreAdmin\\Application\\UseCases\\Auth\\LoginUseCase\:\:execute\(\) has parameter \$credentials with no value type specified in iterable type array\.$#'
@@ -448,6 +361,30 @@ parameters:
 			path: tests/Unit/Application/UseCases/Entity/ResolveEmbeddedRelationsUseCaseTest.php
 
 		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/ResolveEmbeddedRelationsValidationTest.php
+
+		-
+			message: '#^Method Tests\\Unit\\Application\\UseCases\\Entity\\ResolveEmbeddedRelationsValidationTest\:\:definitionWithFields\(\) has parameter \$fields with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/ResolveEmbeddedRelationsValidationTest.php
+
+		-
+			message: '#^Parameter \$validateRecord of class BlackParadise\\CoreAdmin\\Application\\UseCases\\Entity\\ResolveEmbeddedRelationsUseCase constructor expects \(Closure\(BlackParadise\\CoreAdmin\\Domain\\Contracts\\EntityDefinition\\EntityDefinitionContract, array\<string, mixed\>, list\<string\>\)\: void\)\|null, callable\(\)\: mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/ResolveEmbeddedRelationsValidationTest.php
+
+		-
+			message: '#^Method Tests\\Unit\\Application\\UseCases\\Entity\\RuleBuilderContextTest\:\:definitionWithRequiredFields\(\) has parameter \$fields with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/RuleBuilderContextTest.php
+
+		-
 			message: '''
 				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
 				Prefer using ruleSet\(\) and Rule enum methods\.$#
@@ -459,7 +396,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
 			identifier: method.notFound
-			count: 10
+			count: 9
 			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
 
 		-
@@ -489,19 +426,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Mutators\\EntityMutatorInterface\:\:method\(\)\.$#'
 			identifier: method.notFound
-			count: 3
-			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
-
-		-
-			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Repositories\\EntityRepositoryInterface\:\:expects\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
-
-		-
-			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Repositories\\EntityRepositoryInterface\:\:method\(\)\.$#'
-			identifier: method.notFound
-			count: 5
+			count: 4
 			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
 
 		-
@@ -521,6 +446,24 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: tests/Unit/Domain/Contracts/Entity/EntityRecordContractTest.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''BlackParadise\\\\CoreAdmin\\\\Domain\\\\Contracts\\\\ValueHasherContract'' and ''hash'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/Domain/Contracts/ValueHasherContractTest.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''BlackParadise\\\\CoreAdmin\\\\Domain\\\\Contracts\\\\ValueHasherContract'' and ''isHashed'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/Domain/Contracts/ValueHasherContractTest.php
+
+		-
+			message: '#^Dynamic call to static method PHPUnit\\Framework\\TestCase\:\:createStub\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: tests/Unit/Domain/Entity/EntityRecordGetByPathTest.php
 
 		-
 			message: '#^Dynamic call to static method PHPUnit\\Framework\\TestCase\:\:createStub\(\)\.$#'
@@ -729,8 +672,53 @@ parameters:
 				Use ruleSet\(\) instead\.$#
 			'''
 			identifier: method.deprecated
+			count: 5
+			path: tests/Unit/Domain/Fields/StructuralRulesSurviveWithRulesTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\FileField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 5
+			path: tests/Unit/Domain/Fields/StructuralRulesSurviveWithRulesTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\ImageField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 5
+			path: tests/Unit/Domain/Fields/StructuralRulesSurviveWithRulesTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Prefer using ruleSet\(\) and Rule enum methods\.$#
+			'''
+			identifier: method.deprecated
+			count: 9
+			path: tests/Unit/Domain/Fields/StructuralRulesSurviveWithRulesTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Use ruleSet\(\) instead\.$#
+			'''
+			identifier: method.deprecated
 			count: 1
 			path: tests/Unit/Domain/Fields/TranslatableFieldTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Prefer using ruleSet\(\) and Rule enum methods\.$#
+			'''
+			identifier: method.deprecated
+			count: 4
+			path: tests/Unit/Domain/Fields/TypeRulesSurviveWithRulesTest.php
 
 		-
 			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsString\(\) with ''array''\|''boolean''\|''date''\|''email''\|''file''\|''image''\|''integer''\|''nullable''\|''numeric''\|''required''\|''string''\|''url'' will always evaluate to true\.$#'

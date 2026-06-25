@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Application\UseCases\Entity;
 
-use BlackParadise\CoreAdmin\Application\Exceptions\EntityNotFoundException;
 use BlackParadise\CoreAdmin\Application\UseCases\Entity\UpdateRecordUseCase;
 use BlackParadise\CoreAdmin\Domain\Contracts\Auth\AuthorizationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
@@ -12,17 +11,16 @@ use BlackParadise\CoreAdmin\Domain\Contracts\Events\EventDispatcherContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Validation\ValidationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Entity\EntityRecord;
 use BlackParadise\CoreAdmin\Domain\Events\EntityUpdated;
+use BlackParadise\CoreAdmin\Domain\Exceptions\EntityNotFoundException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\UnauthorizedException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\ValidationException;
 use BlackParadise\CoreAdmin\Domain\Mutators\EntityMutatorInterface;
-use BlackParadise\CoreAdmin\Domain\Repositories\EntityRepositoryInterface;
 use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityKey;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 
 final class UpdateRecordUseCaseTest extends TestCase
 {
-    private EntityRepositoryInterface $repository;
     private EntityMutatorInterface $mutator;
     private AuthorizationProviderContract $auth;
     private EntityDefinitionContract $definition;
@@ -31,7 +29,6 @@ final class UpdateRecordUseCaseTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
         $this->mutator = $this->createMock(EntityMutatorInterface::class);
         $this->auth = $this->createMock(AuthorizationProviderContract::class);
         $this->definition = $this->createMock(EntityDefinitionContract::class);
@@ -47,7 +44,6 @@ final class UpdateRecordUseCaseTest extends TestCase
     private function makeUseCase(): UpdateRecordUseCase
     {
         return new UpdateRecordUseCase(
-            $this->repository,
             $this->mutator,
             $this->auth,
             $this->definition,
@@ -63,7 +59,6 @@ final class UpdateRecordUseCaseTest extends TestCase
         $updatedRecord = new EntityRecord($this->definition, ['id' => 1, 'name' => 'Alice Updated']);
 
         $this->auth->method('can')->with('update', $this->definition)->willReturn(true);
-        $this->repository->method('exists')->with($this->definition, $key)->willReturn(true);
         $this->validator->expects(self::once())->method('validate');
         $this->mutator->method('update')->with($key, $inputRecord)->willReturn($updatedRecord);
         $this->dispatcher
@@ -94,7 +89,7 @@ final class UpdateRecordUseCaseTest extends TestCase
         $key = new EntityKey(999, 'int');
 
         $this->auth->method('can')->willReturn(true);
-        $this->repository->method('exists')->with($this->definition, $key)->willReturn(false);
+        $this->mutator->method('update')->willThrowException(new EntityNotFoundException('users', 999));
 
         $useCase = $this->makeUseCase();
 
@@ -109,7 +104,6 @@ final class UpdateRecordUseCaseTest extends TestCase
         $key = new EntityKey(1, 'int');
 
         $this->auth->method('can')->willReturn(true);
-        $this->repository->method('exists')->willReturn(true);
         $this->validator
             ->method('validate')
             ->willThrowException(new ValidationException(['name' => ['Required.']]));
@@ -119,20 +113,6 @@ final class UpdateRecordUseCaseTest extends TestCase
         $this->expectException(ValidationException::class);
 
         $useCase->execute($key, new EntityRecord($this->definition));
-    }
-
-    public function test_execute_when_unauthorized_does_not_check_existence(): void
-    {
-        $this->auth->method('can')->willReturn(false);
-        $this->repository->expects(self::never())->method('exists');
-
-        $useCase = $this->makeUseCase();
-
-        try {
-            $useCase->execute(new EntityKey(1), new EntityRecord($this->definition));
-        } catch (UnauthorizedException) {
-            // expected
-        }
     }
 
     public function test_execute_when_unauthorized_does_not_call_validator(): void
@@ -187,7 +167,6 @@ final class UpdateRecordUseCaseTest extends TestCase
         $updatedRecord = new EntityRecord($this->definition, ['name' => 'Ghost']); // no id
 
         $this->auth->method('can')->willReturn(true);
-        $this->repository->method('exists')->willReturn(true);
         $this->validator->method('validate');
         $this->mutator->method('update')->willReturn($updatedRecord);
         $this->dispatcher->expects(self::never())->method('dispatch');
@@ -207,7 +186,6 @@ final class UpdateRecordUseCaseTest extends TestCase
         $updatedRecord = new EntityRecord($this->definition, ['id' => 5, 'name' => 'Dave']);
 
         $this->auth->method('can')->willReturn(true);
-        $this->repository->method('exists')->willReturn(true);
         $this->validator->method('validate');
         $this->mutator->method('update')->willReturn($updatedRecord);
 

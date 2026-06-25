@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Application\UseCases\Entity;
 
-use BlackParadise\CoreAdmin\Application\Exceptions\EntityNotFoundException;
 use BlackParadise\CoreAdmin\Application\UseCases\Entity\FindRecordUseCase;
 use BlackParadise\CoreAdmin\Domain\Contracts\Auth\AuthorizationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
 use BlackParadise\CoreAdmin\Domain\Entity\EntityRecord;
+use BlackParadise\CoreAdmin\Domain\Exceptions\EntityNotFoundException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\UnauthorizedException;
 use BlackParadise\CoreAdmin\Domain\Repositories\EntityRepositoryInterface;
 use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityKey;

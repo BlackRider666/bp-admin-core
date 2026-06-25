@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BlackParadise\CoreAdmin\Application\Exceptions;
+namespace BlackParadise\CoreAdmin\Domain\Exceptions;
 
 use DomainException;
 
