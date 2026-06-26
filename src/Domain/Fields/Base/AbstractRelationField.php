@@ -6,6 +6,7 @@ namespace BlackParadise\CoreAdmin\Domain\Fields\Base;
 
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Fields\RelationFieldContract;
+use Closure;
 use InvalidArgumentException;
 
 abstract class AbstractRelationField extends AbstractField implements RelationFieldContract
@@ -18,6 +19,14 @@ abstract class AbstractRelationField extends AbstractField implements RelationFi
     protected array $state = [];
     /** @var list<array{column: string, value: mixed}> */
     protected array $optionConstraintsList = [];
+
+    /** @var (Closure(array<string, mixed>): string)|null */
+    protected ?Closure $displayUsing = null;
+
+    /** @var list<string> */
+    protected array $displayEagerLoadList = [];
+
+    protected ?string $displayOrderColumn = null;
 
     /**
      * @param bool $multiple Reserved for presenter usage — signals to the UI
@@ -244,5 +253,78 @@ abstract class AbstractRelationField extends AbstractField implements RelationFi
     public function optionConstraints(): array
     {
         return $this->optionConstraintsList;
+    }
+
+    /**
+     * Обчислювана мітка relation-селекта. Closure отримує асоціативний масив
+     * рядка цілі (атрибути + eager-loaded relation як вкладені масиви) і повертає
+     * рядок-мітку. Framework-free: closure типу array->string.
+     *
+     * @param Closure(array<string, mixed>): string $resolver
+     */
+    public function withDisplayUsing(Closure $resolver): static
+    {
+        $this->displayUsing = $resolver;
+        return $this;
+    }
+
+    /**
+     * Relation'и, які провайдер/репозиторій мають eager-load'ити, щоб closure
+     * мав потрібні дані (без N+1). Напр. ['history'].
+     *
+     * @param array<string> $relations
+     */
+    public function withDisplayEagerLoad(array $relations): static
+    {
+        $this->displayEagerLoadList = array_values($relations);
+        return $this;
+    }
+
+    /**
+     * Реальна колонка для ORDER BY у списку опцій. Якщо null — провайдер сортує
+     * у PHP за обчисленою міткою.
+     */
+    public function withDisplayOrderColumn(?string $column): static
+    {
+        $this->displayOrderColumn = $column;
+        return $this;
+    }
+
+    public function hasDisplayCallback(): bool
+    {
+        return $this->displayUsing instanceof Closure;
+    }
+
+    /** @return Closure(array<string, mixed>): string|null */
+    public function displayCallback(): ?Closure
+    {
+        return $this->displayUsing;
+    }
+
+    /** @return list<string> */
+    public function displayEagerLoad(): array
+    {
+        return $this->displayEagerLoadList;
+    }
+
+    public function displayOrderColumn(): ?string
+    {
+        return $this->displayOrderColumn;
+    }
+
+    /**
+     * Єдина точка обчислення мітки цілі. Closure якщо заданий; інакше скалярне
+     * значення $fallbackField (нескалярне → порожній рядок, щоб не зламати
+     * translatable-рендер у blade, який іде окремим шляхом).
+     *
+     * @param array<string, mixed> $row
+     */
+    public function resolveDisplayLabel(array $row, string $fallbackField): string
+    {
+        if ($this->displayUsing instanceof Closure) {
+            return ($this->displayUsing)($row);
+        }
+        $value = $row[$fallbackField] ?? '';
+        return is_scalar($value) ? (string) $value : '';
     }
 }

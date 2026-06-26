@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackParadise\CoreAdmin\Domain\Contracts\Fields;
 
+use Closure;
+
 interface RelationFieldContract extends FieldContract
 {
     public function relationKind(): string;
@@ -32,4 +34,21 @@ interface RelationFieldContract extends FieldContract
      * @return list<array{column: string, value: mixed}>
      */
     public function optionConstraints(): array;
+
+    public function hasDisplayCallback(): bool;
+
+    /** @return Closure(array<string, mixed>): string|null */
+    public function displayCallback(): ?Closure;
+
+    /** @return list<string> */
+    public function displayEagerLoad(): array;
+
+    public function displayOrderColumn(): ?string;
+
+    /**
+     * Обчислити мітку цілі: closure (якщо заданий) або значення $fallbackField.
+     *
+     * @param array<string, mixed> $row
+     */
+    public function resolveDisplayLabel(array $row, string $fallbackField): string;
 }
