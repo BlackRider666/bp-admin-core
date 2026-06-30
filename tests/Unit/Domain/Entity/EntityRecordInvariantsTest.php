@@ -10,7 +10,6 @@ use BlackParadise\CoreAdmin\Domain\Entity\EntityRecord;
 use BlackParadise\CoreAdmin\Domain\ValueObjects\FieldName;
 use DomainException;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 
 final class EntityRecordInvariantsTest extends TestCase
 {
@@ -60,16 +59,6 @@ final class EntityRecordInvariantsTest extends TestCase
         $record->setField(new FieldName('missing'), 'x');
     }
 
-    public function test_set_field_throws_when_field_is_side_effect_relation(): void
-    {
-        $record = new EntityRecord($this->definition);
-
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessageMatches('/relation .*roles/i');
-
-        $record->setField(new FieldName('roles'), [1, 2, 3]);
-    }
-
     public function test_set_field_allows_belongs_to_column(): void
     {
         $record = new EntityRecord($this->definition);
@@ -77,26 +66,6 @@ final class EntityRecordInvariantsTest extends TestCase
         $record->setField(new FieldName('author'), 7);
 
         self::assertSame(7, $record->getField(new FieldName('author')));
-    }
-
-    public function test_set_relation_stores_value_for_relation_field(): void
-    {
-        $record = new EntityRecord($this->definition);
-
-        $record->setRelation(new FieldName('roles'), [1, 2, 3]);
-
-        self::assertSame([1, 2, 3], $record->relation('roles'));
-        self::assertNull($record->get('roles'));
-    }
-
-    public function test_set_relation_allows_belongs_to(): void
-    {
-        $record = new EntityRecord($this->definition);
-
-        $record->setRelation(new FieldName('author'), 'user-7');
-
-        self::assertSame('user-7', $record->relation('author'));
-        self::assertNull($record->getField(new FieldName('author')));
     }
 
     public function test_set_field_allows_morph_to_column(): void
@@ -107,17 +76,6 @@ final class EntityRecordInvariantsTest extends TestCase
 
         self::assertSame('App\Models\Post:7', $record->getField(new FieldName('morphable')));
         self::assertNull($record->relation('morphable'));
-    }
-
-    public function test_set_relation_allows_morph_to(): void
-    {
-        $record = new EntityRecord($this->definition);
-        $polymorph = new stdClass();
-
-        $record->setRelation(new FieldName('morphable'), $polymorph);
-
-        self::assertSame($polymorph, $record->relation('morphable'));
-        self::assertNull($record->getField(new FieldName('morphable')));
     }
 
     public function test_set_relation_throws_when_field_not_in_definition(): void

@@ -19,6 +19,11 @@ final class BelongsToManyField extends AbstractRelationField
         return new self($name, 'belongsToMany', $target);
     }
 
+    public function kind(): RelationKind
+    {
+        return RelationKind::BelongsToMany;
+    }
+
     public function type(): string
     {
         return 'belongs_to_many';

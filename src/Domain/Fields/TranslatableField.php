@@ -72,4 +72,27 @@ final class TranslatableField extends AbstractField
 
         return [];
     }
+
+    /**
+     * When locales are provided, emit one dot-notation key per locale
+     * (`field.locale` → the field's rules). When locales is empty, fall back
+     * to the single flat field-name key (legacy path, preserves current behaviour).
+     *
+     * @param array<string> $locales
+     * @return array<string, list<string>>
+     */
+    public function expandRules(array $locales, string $context): array
+    {
+        if ($locales === []) {
+            return [$this->name() => array_values($this->ruleSet()->toArray())];
+        }
+
+        $fieldRules = array_values($this->ruleSet()->toArray());
+        $result     = [];
+        foreach ($locales as $locale) {
+            $result[$this->name() . '.' . $locale] = $fieldRules;
+        }
+
+        return $result;
+    }
 }

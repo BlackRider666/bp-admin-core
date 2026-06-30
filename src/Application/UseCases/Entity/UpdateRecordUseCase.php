@@ -8,6 +8,7 @@ use BlackParadise\CoreAdmin\Domain\Contracts\Auth\AuthorizationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Entity\EntityRecordContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Events\EventDispatcherContract;
+use BlackParadise\CoreAdmin\Domain\Contracts\LocaleProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Validation\ValidationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Events\EntityUpdated;
 use BlackParadise\CoreAdmin\Domain\Exceptions\EntityNotFoundException;
@@ -25,6 +26,7 @@ final readonly class UpdateRecordUseCase
         private EntityDefinitionContract $entityDefinition,
         private ValidationProviderContract $validator,
         private EventDispatcherContract $dispatcher,
+        private LocaleProviderContract $localeProvider,
     ) {}
 
     /**
@@ -40,7 +42,8 @@ final readonly class UpdateRecordUseCase
 
         $this->validator->validate(
             $record->attributes(),
-            RuleBuilder::fromDefinition($this->entityDefinition),
+            (new RuleBuilder($this->localeProvider->availableLocales(), 'update'))
+                ->build($this->entityDefinition, array_keys($record->attributes())),
         );
 
         $updated = $this->mutator->update($key, $record);

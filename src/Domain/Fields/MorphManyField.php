@@ -25,6 +25,11 @@ final class MorphManyField extends AbstractRelationField
         return new self($name, 'morphMany', $target);
     }
 
+    public function kind(): RelationKind
+    {
+        return RelationKind::MorphMany;
+    }
+
     public function type(): string
     {
         return 'morph_many';

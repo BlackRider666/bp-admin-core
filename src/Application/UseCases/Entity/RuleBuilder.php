@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace BlackParadise\CoreAdmin\Application\UseCases\Entity;
 
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
-use BlackParadise\CoreAdmin\Domain\Fields\TranslatableField;
 
 /**
  * Builds a field-keyed validation rules array from an EntityDefinition.
@@ -60,29 +59,14 @@ final readonly class RuleBuilder
     {
         $rules = [];
         foreach ($definition->fields() as $field) {
-            if ($field instanceof TranslatableField && $this->locales !== []) {
-                $fieldRules = $field->ruleSet()->toArray();
-                if ($fieldRules === []) {
-                    continue;
-                }
-                // Expand to per-locale dot-notation keys.
-                foreach ($this->locales as $locale) {
-                    $localeKey   = $field->name() . '.' . $locale;
-                    $localeRules = $fieldRules;
-                    if ($this->context === 'update' && !in_array($field->name(), $presentKeys, true)) {
-                        $localeRules = $this->relaxRequired($localeRules);
-                    }
-                    $rules[$localeKey] = $localeRules;
-                }
-            } else {
-                $fieldRules = $field->ruleSet()->toArray();
+            foreach ($field->expandRules($this->locales, $this->context) as $key => $fieldRules) {
                 if ($fieldRules === []) {
                     continue;
                 }
                 if ($this->context === 'update' && !in_array($field->name(), $presentKeys, true)) {
                     $fieldRules = $this->relaxRequired($fieldRules);
                 }
-                $rules[$field->name()] = $fieldRules;
+                $rules[$key] = $fieldRules;
             }
         }
         return $rules;

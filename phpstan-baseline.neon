@@ -237,19 +237,19 @@ parameters:
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
 			identifier: method.notFound
-			count: 17
+			count: 21
 			path: tests/Unit/Application/UseCases/Entity/BuildFormViewUseCaseTest.php
 
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\EntityDefinition\\EntityDefinitionContract\:\:method\(\)\.$#'
 			identifier: method.notFound
-			count: 18
+			count: 19
 			path: tests/Unit/Application/UseCases/Entity/BuildFormViewUseCaseTest.php
 
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
 			identifier: method.notFound
-			count: 8
+			count: 9
 			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
 
 		-
@@ -265,6 +265,12 @@ parameters:
 			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
 
 		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Events\\EventDispatcherContract\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
+
+		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Validation\\ValidationProviderContract\:\:expects\(\)\.$#'
 			identifier: method.notFound
 			count: 2
@@ -273,7 +279,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Validation\\ValidationProviderContract\:\:method\(\)\.$#'
 			identifier: method.notFound
-			count: 3
+			count: 4
 			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
 
 		-
@@ -285,7 +291,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Mutators\\EntityMutatorInterface\:\:method\(\)\.$#'
 			identifier: method.notFound
-			count: 3
+			count: 4
 			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
 
 		-
@@ -396,13 +402,19 @@ parameters:
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
 			identifier: method.notFound
-			count: 9
+			count: 10
 			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
 
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Events\\EventDispatcherContract\:\:expects\(\)\.$#'
 			identifier: method.notFound
 			count: 4
+			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Events\\EventDispatcherContract\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 1
 			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
 
 		-
@@ -414,7 +426,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Validation\\ValidationProviderContract\:\:method\(\)\.$#'
 			identifier: method.notFound
-			count: 3
+			count: 4
 			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
 
 		-
@@ -426,7 +438,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Mutators\\EntityMutatorInterface\:\:method\(\)\.$#'
 			identifier: method.notFound
-			count: 4
+			count: 5
 			path: tests/Unit/Application/UseCases/Entity/UpdateRecordUseCaseTest.php
 
 		-
@@ -743,3 +755,21 @@ parameters:
 			identifier: staticMethod.dynamicCall
 			count: 4
 			path: tests/Unit/Security/InputValidationSecurityTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Prefer using ruleSet\(\) and Rule enum methods\.$#
+			'''
+			identifier: method.deprecated
+			count: 2
+			path: tests/Unit/Domain/Fields/FieldExpandRulesTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Prefer using ruleSet\(\) and Rule enum methods\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: tests/Unit/Domain/Fields/TranslatableFieldExpandRulesTest.php

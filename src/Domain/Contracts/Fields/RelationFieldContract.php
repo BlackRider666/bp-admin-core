@@ -4,10 +4,21 @@ declare(strict_types=1);
 
 namespace BlackParadise\CoreAdmin\Domain\Contracts\Fields;
 
+use BlackParadise\CoreAdmin\Domain\Fields\RelationKind;
 use Closure;
 
 interface RelationFieldContract extends FieldContract
 {
+    /**
+     * Typed relation kind — the primary discrimination axis for use-case dispatch.
+     * Callers should prefer this over comparing relationKind() strings.
+     */
+    public function kind(): RelationKind;
+
+    /**
+     * Legacy string accessor. Prefer kind()->legacyString() for new callers.
+     * Kept for framework adapters that have not yet migrated to kind()-based dispatch.
+     */
     public function relationKind(): string;
     public function target(): string;
     public function multiple(): bool;

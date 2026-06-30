@@ -56,6 +56,33 @@ final class MorphFileField extends AbstractField
         return 'morph_file';
     }
 
+    /**
+     * MorphFileField is a relation even though it does not extend AbstractRelationField —
+     * it stores the file in a separate polymorphic table, not as a column on the host.
+     */
+    public function isRelation(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Writing a morph-file field persists a record in a separate files table —
+     * a side effect relative to the host record column write.
+     */
+    public function isSideEffect(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Morph-file fields are not embedded in the sense that ResolveEmbeddedRelationsUseCase
+     * tracks; the file persistence path is handled by the file storage provider.
+     */
+    public function embedStrategy(): EmbedStrategy
+    {
+        return EmbedStrategy::None;
+    }
+
     protected function typeRules(): array
     {
         return [Rule::Nullable, Rule::File];

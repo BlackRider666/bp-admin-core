@@ -6,6 +6,8 @@ namespace BlackParadise\CoreAdmin\Domain\Fields\Base;
 
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Fields\RelationFieldContract;
+use BlackParadise\CoreAdmin\Domain\Fields\EmbedStrategy;
+use BlackParadise\CoreAdmin\Domain\Fields\RelationKind;
 use Closure;
 use InvalidArgumentException;
 
@@ -75,16 +77,86 @@ abstract class AbstractRelationField extends AbstractField implements RelationFi
             return $this->label;
         }
         // belongsTo with FK column name (e.g. "genre_id") — humanise relation name ("Genre")
-        if ($this->relationKind === 'belongsTo' && str_ends_with($this->name, '_id')) {
+        if ($this->kind() === RelationKind::BelongsTo && str_ends_with($this->name, '_id')) {
             return ucfirst(str_replace('_', ' ', $this->relationName()));
         }
         return parent::label();
     }
 
+    // -------------------------------------------------------------------------
+    // Typed relation kind — extensibility seam
+    // -------------------------------------------------------------------------
+
+    /**
+     * Typed relation kind for this field. Concrete subclasses should override
+     * this to return the appropriate RelationKind case directly.
+     *
+     * The base implementation resolves the legacy $relationKind string via
+     * {@see RelationKind::tryFromLegacy()}. Unknown strings throw
+     * {@see \InvalidArgumentException} — there is no silent HasOne fallback.
+     * Concrete subclasses that carry a known kind should override this method
+     * and return the RelationKind case directly, bypassing the string lookup.
+     *
+     * @throws InvalidArgumentException For unrecognised relation-kind strings.
+     */
+    public function kind(): RelationKind
+    {
+        return RelationKind::tryFromLegacy($this->relationKind)
+            ?? throw new InvalidArgumentException(sprintf(
+                'Unknown relation kind "%s" for field "%s". Concrete AbstractRelationField '
+                . 'subclasses must override kind() to return a RelationKind case directly.',
+                $this->relationKind,
+                $this->name(),
+            ));
+    }
+
+    /**
+     * Legacy string accessor — shim for framework adapters not yet migrated to kind().
+     * Returns the canonical legacy string for this kind so the value never changes
+     * for known relation types.
+     */
     public function relationKind(): string
     {
-        return $this->relationKind;
+        return $this->kind()->legacyString();
     }
+
+    // -------------------------------------------------------------------------
+    // Field behaviour predicates — override AbstractField safe defaults
+    // -------------------------------------------------------------------------
+
+    /** All relation fields are relations. */
+    public function isRelation(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Derived from the typed kind. BelongsTo and MorphTo are NOT side effects
+     * (they store a FK column on the host). All others are.
+     */
+    public function isSideEffect(): bool
+    {
+        return $this->kind()->isSideEffect();
+    }
+
+    /**
+     * Derived from the typed kind. Drives dispatch in ResolveEmbeddedRelationsUseCase
+     * without string-comparing relationKind().
+     */
+    public function embedStrategy(): EmbedStrategy
+    {
+        return $this->kind()->embedStrategy();
+    }
+
+    /**
+     * True when this field is a belongsTo pointing at the given host model class.
+     * Used by ResolveEmbeddedRelationsUseCase to skip back-FK validation.
+     */
+    public function pointsBackTo(string $hostModelClass): bool
+    {
+        return $this->kind() === RelationKind::BelongsTo && $this->target() === $hostModelClass;
+    }
+
     public function target(): string
     {
         return $this->target;
@@ -109,7 +181,7 @@ abstract class AbstractRelationField extends AbstractField implements RelationFi
             return $this->explicitRelationName;
         }
 
-        if ($this->relationKind === 'belongsTo') {
+        if ($this->kind() === RelationKind::BelongsTo) {
             $fieldName = $this->name();
             if (str_ends_with($fieldName, '_id')) {
                 return substr($fieldName, 0, -3);

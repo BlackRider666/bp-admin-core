@@ -8,6 +8,7 @@ use BlackParadise\CoreAdmin\Domain\Contracts\Auth\AuthorizationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Entity\EntityRecordContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Events\EventDispatcherContract;
+use BlackParadise\CoreAdmin\Domain\Contracts\LocaleProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Validation\ValidationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Events\EntityCreated;
 use BlackParadise\CoreAdmin\Domain\Exceptions\UnauthorizedException;
@@ -24,6 +25,7 @@ final readonly class CreateRecordUseCase
         private EntityDefinitionContract $entityDefinition,
         private ValidationProviderContract $validator,
         private EventDispatcherContract $dispatcher,
+        private LocaleProviderContract $localeProvider,
     ) {}
 
     /**
@@ -38,7 +40,8 @@ final readonly class CreateRecordUseCase
 
         $this->validator->validate(
             $record->attributes(),
-            RuleBuilder::fromDefinition($this->entityDefinition),
+            (new RuleBuilder($this->localeProvider->availableLocales(), 'create'))
+                ->build($this->entityDefinition, array_keys($record->attributes())),
         );
 
         $created = $this->mutator->create($record);

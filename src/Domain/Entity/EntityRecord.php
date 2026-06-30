@@ -7,7 +7,6 @@ namespace BlackParadise\CoreAdmin\Domain\Entity;
 use BlackParadise\CoreAdmin\Domain\Contracts\Entity\EntityRecordContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Fields\FieldContract;
-use BlackParadise\CoreAdmin\Domain\Fields\RelationFieldTypes;
 use BlackParadise\CoreAdmin\Domain\ValueObjects\FieldName;
 use DomainException;
 
@@ -88,7 +87,7 @@ final class EntityRecord implements EntityRecordContract
     {
         $field = $this->resolveField($name);
 
-        if (RelationFieldTypes::isSideEffect($field->type())) {
+        if ($field->isSideEffect()) {
             throw new DomainException(sprintf(
                 'Cannot setField on side-effect relation "%s" (type %s); use setRelation instead.',
                 (string) $name,
@@ -103,7 +102,7 @@ final class EntityRecord implements EntityRecordContract
     {
         $field = $this->resolveField($name);
 
-        if (!RelationFieldTypes::isRelation($field->type())) {
+        if (!$field->isRelation()) {
             throw new DomainException(sprintf(
                 'Field "%s" (type %s) is not a relation; use setField instead.',
                 (string) $name,

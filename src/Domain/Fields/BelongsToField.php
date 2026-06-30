@@ -15,6 +15,11 @@ final class BelongsToField extends AbstractRelationField
         return new self($name, 'belongsTo', $target);
     }
 
+    public function kind(): RelationKind
+    {
+        return RelationKind::BelongsTo;
+    }
+
     public function type(): string
     {
         return 'belongs_to';

@@ -13,6 +13,11 @@ final class HasOneField extends AbstractRelationField
         return new self($name, 'hasOne', $target);
     }
 
+    public function kind(): RelationKind
+    {
+        return RelationKind::HasOne;
+    }
+
     public function type(): string
     {
         return 'has_one';

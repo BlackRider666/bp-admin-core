@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlackParadise\CoreAdmin\Domain\Fields\Base;
 
 use BlackParadise\CoreAdmin\Domain\Contracts\Fields\FieldContract;
+use BlackParadise\CoreAdmin\Domain\Fields\EmbedStrategy;
 use BlackParadise\CoreAdmin\Domain\Validation\ParameterizedRule;
 use BlackParadise\CoreAdmin\Domain\Validation\Rule;
 use BlackParadise\CoreAdmin\Domain\Validation\RuleSet;
@@ -356,5 +357,59 @@ abstract class AbstractField implements FieldContract
         $this->meta = array_merge($this->meta, $meta);
 
         return $this;
+    }
+
+    // -------------------------------------------------------------------------
+    // Field behaviour predicates — safe defaults for scalar fields
+    // -------------------------------------------------------------------------
+
+    /**
+     * Whether this field represents a relation (vs. a plain column).
+     * Scalar fields return false; AbstractRelationField and MorphFileField override to true.
+     */
+    public function isRelation(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Whether writing this field causes a side effect beyond a simple column
+     * write (child upsert, pivot sync, polymorphic file write).
+     * Scalar fields return false; AbstractRelationField derives this from kind().
+     */
+    public function isSideEffect(): bool
+    {
+        return false;
+    }
+
+    /**
+     * The embedding strategy to apply when this field carries a nested payload.
+     * Scalar fields return None; AbstractRelationField derives this from kind().
+     */
+    public function embedStrategy(): EmbedStrategy
+    {
+        return EmbedStrategy::None;
+    }
+
+    /**
+     * Whether this field is a belongsTo that points back to the given host model.
+     * Scalar fields always return false; AbstractRelationField overrides this to check
+     * kind() === BelongsTo AND target() equals the host model class.
+     */
+    public function pointsBackTo(string $hostModelClass): bool
+    {
+        return false;
+    }
+
+    /**
+     * Default implementation: returns a single-key array keyed by the field name.
+     * Non-locale-aware fields ignore $locales entirely.
+     *
+     * @param array<string> $locales
+     * @return array<string, list<string>>
+     */
+    public function expandRules(array $locales, string $context): array
+    {
+        return [$this->name() => array_values($this->ruleSet()->toArray())];
     }
 }

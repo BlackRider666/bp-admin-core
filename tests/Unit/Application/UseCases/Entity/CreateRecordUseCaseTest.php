@@ -8,11 +8,13 @@ use BlackParadise\CoreAdmin\Application\UseCases\Entity\CreateRecordUseCase;
 use BlackParadise\CoreAdmin\Domain\Contracts\Auth\AuthorizationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Events\EventDispatcherContract;
+use BlackParadise\CoreAdmin\Domain\Contracts\LocaleProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Validation\ValidationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Entity\EntityRecord;
 use BlackParadise\CoreAdmin\Domain\Events\EntityCreated;
 use BlackParadise\CoreAdmin\Domain\Exceptions\UnauthorizedException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\ValidationException;
+use BlackParadise\CoreAdmin\Domain\Fields\TranslatableField;
 use BlackParadise\CoreAdmin\Domain\Mutators\EntityMutatorInterface;
 use LogicException;
 use PHPUnit\Framework\TestCase;
@@ -24,6 +26,7 @@ final class CreateRecordUseCaseTest extends TestCase
     private EntityDefinitionContract $definition;
     private ValidationProviderContract $validator;
     private EventDispatcherContract $dispatcher;
+    private LocaleProviderContract $localeProvider;
 
     protected function setUp(): void
     {
@@ -32,6 +35,12 @@ final class CreateRecordUseCaseTest extends TestCase
         $this->definition = $this->createMock(EntityDefinitionContract::class);
         $this->validator = $this->createMock(ValidationProviderContract::class);
         $this->dispatcher = $this->createMock(EventDispatcherContract::class);
+        // Task 1.2 will add LocaleProviderContract as 6th ctor arg.
+        // Injecting it here pre-IMPL causes ArgumentCountError → legitimate RED.
+        $this->localeProvider = $this->createMock(LocaleProviderContract::class);
+        $this->localeProvider->method('availableLocales')->willReturn(['en', 'uk']);
+        $this->localeProvider->method('defaultLocale')->willReturn('en');
+        $this->localeProvider->method('currentLocale')->willReturn('en');
 
         $this->definition->method('name')->willReturn('users');
         $this->definition->method('keyField')->willReturn('id');
@@ -47,6 +56,7 @@ final class CreateRecordUseCaseTest extends TestCase
             $this->definition,
             $this->validator,
             $this->dispatcher,
+            $this->localeProvider, // 6th arg — ArgumentCountError on 5-arg ctor pre-IMPL → RED
         );
     }
 
@@ -185,5 +195,68 @@ final class CreateRecordUseCaseTest extends TestCase
         self::assertSame(42, $dispatchedEvent->getEntityKey()->value);
         self::assertSame('int', $dispatchedEvent->getEntityKey()->type);
         self::assertSame(['id' => 42, 'name' => 'Carol'], $dispatchedEvent->getPayload());
+    }
+
+    // -------------------------------------------------------------------------
+    // A4 (use-case level) — LocaleProvider drives locale-aware validation rules
+    // -------------------------------------------------------------------------
+
+    /**
+     * Pre-IMPL: makeUseCase() throws ArgumentCountError (6th arg, 5-arg ctor) → ERROR → RED.
+     * Post-IMPL: use case consumes LocaleProvider; validator receives {'title.en': [...], 'title.uk': [...]}.
+     */
+    public function test_execute_passes_locale_aware_rules_to_validator_for_translatable_field(): void
+    {
+        $titleField = TranslatableField::make('title')->required();
+
+        $definition = $this->createMock(EntityDefinitionContract::class);
+        $definition->method('name')->willReturn('posts');
+        $definition->method('keyField')->willReturn('id');
+        $definition->method('keyType')->willReturn('int');
+        $definition->method('fields')->willReturn([$titleField]);
+
+        $this->auth->method('can')->willReturn(true);
+
+        $capturedRules = null;
+        $this->validator
+            ->method('validate')
+            ->willReturnCallback(function (array $data, array $rules) use (&$capturedRules): void {
+                $capturedRules = $rules;
+            });
+
+        $createdRecord = new EntityRecord($definition, ['id' => 1]);
+        $this->mutator->method('create')->willReturn($createdRecord);
+        $this->dispatcher->method('dispatch');
+
+        // Inline ctor — also fails pre-IMPL (ArgumentCountError on 5-arg ctor).
+        $useCase = new CreateRecordUseCase(
+            $this->mutator,
+            $this->auth,
+            $definition,
+            $this->validator,
+            $this->dispatcher,
+            $this->localeProvider, // 6th arg — locale provider supplying ['en', 'uk']
+        );
+
+        $useCase->execute(new EntityRecord($definition, ['title' => ['en' => 'Hello', 'uk' => 'Привіт']]));
+
+        // Post-IMPL: use case builds RuleBuilder with locales=['en','uk'] from the provider.
+        // The validator must receive per-locale dot-keys, not a flat 'title' key.
+        self::assertNotNull($capturedRules, 'Validator must be called');
+        self::assertArrayHasKey(
+            'title.en',
+            $capturedRules,
+            "LocaleProvider locales must drive locale-aware keys — 'title.en' expected",
+        );
+        self::assertArrayHasKey(
+            'title.uk',
+            $capturedRules,
+            "LocaleProvider locales must drive locale-aware keys — 'title.uk' expected",
+        );
+        self::assertArrayNotHasKey(
+            'title',
+            $capturedRules,
+            "Flat 'title' key must not appear when LocaleProvider supplies locales",
+        );
     }
 }

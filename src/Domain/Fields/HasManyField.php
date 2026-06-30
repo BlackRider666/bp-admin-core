@@ -41,6 +41,11 @@ final class HasManyField extends AbstractRelationField
         return new self($name, 'hasMany', $target);
     }
 
+    public function kind(): RelationKind
+    {
+        return RelationKind::HasMany;
+    }
+
     public function type(): string
     {
         return 'has_many';

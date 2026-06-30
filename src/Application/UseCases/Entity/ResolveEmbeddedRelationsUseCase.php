@@ -9,6 +9,7 @@ use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionCo
 use BlackParadise\CoreAdmin\Domain\Entity\EntityRecord;
 use BlackParadise\CoreAdmin\Domain\Exceptions\ValidationException;
 use BlackParadise\CoreAdmin\Domain\Fields\Base\AbstractRelationField;
+use BlackParadise\CoreAdmin\Domain\Fields\EmbedStrategy;
 use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityKey;
 use BlackParadise\CoreAdmin\Domain\ValueObjects\FieldName;
 use Closure;
@@ -89,21 +90,27 @@ final readonly class ResolveEmbeddedRelationsUseCase
                 continue;
             }
 
-            if ($field->relationKind() === 'hasMany' || $field->relationKind() === 'morphMany') {
+            $strategy = $field->embedStrategy();
+
+            if ($strategy === EmbedStrategy::ValidateMany) {
                 // Validate each child; leave attributes[$name] intact for RelationWriter.
                 $this->validateHasManyChildren($definition, $field, $name, $attributes[$name]);
                 continue;
+            }
+
+            if ($strategy === EmbedStrategy::None) {
+                continue; // No embed handling — leave payload in attributes as-is. (skip resolveDefinition)
             }
 
             $payload = $attributes[$name];
             $payload = array_merge($payload, $field->state());
             $embeddedDef = ($this->resolveDefinition)((string) $field->embeddedDefinition());
 
-            if ($field->relationKind() === 'belongsTo') {
+            if ($strategy === EmbedStrategy::CreateFirst) {
                 // Create child first, then substitute FK id.
                 $created = $this->createChildOrPrefixErrors($embeddedDef, $payload, $name);
                 $attributes[$name] = $created->id();
-            } elseif ($field->relationKind() === 'hasOne') {
+            } elseif ($strategy === EmbedStrategy::DeferChild) {
                 // Host first, child second — defer the child.
                 unset($attributes[$name]);
                 $defer[$name] = ['field' => $field, 'payload' => $payload];
@@ -152,17 +159,23 @@ final readonly class ResolveEmbeddedRelationsUseCase
                 continue;
             }
 
-            if ($field->relationKind() === 'hasMany' || $field->relationKind() === 'morphMany') {
+            $strategy = $field->embedStrategy();
+
+            if ($strategy === EmbedStrategy::ValidateMany) {
                 // Validate each child; leave attributes[$name] intact for RelationWriter.
                 $this->validateHasManyChildren($definition, $field, $name, $attributes[$name]);
                 continue;
+            }
+
+            if ($strategy === EmbedStrategy::None) {
+                continue; // No embed handling — leave payload in attributes as-is. (skip resolveDefinition)
             }
 
             $payload = $attributes[$name];
             $payload = array_merge($payload, $field->state());
             $embeddedDef = ($this->resolveDefinition)((string) $field->embeddedDefinition());
 
-            if ($field->relationKind() === 'belongsTo') {
+            if ($strategy === EmbedStrategy::CreateFirst) {
                 // Disambiguate "no FK loaded" from "explicit null FK". A bare
                 // ->get() collapses both into null and would silently create a
                 // brand-new related record whenever the host was fetched with a
@@ -197,7 +210,7 @@ final readonly class ResolveEmbeddedRelationsUseCase
                     }
                     $attributes[$name] = $existingFkId; // keep existing FK
                 }
-            } elseif ($field->relationKind() === 'hasOne') {
+            } elseif ($strategy === EmbedStrategy::DeferChild) {
                 $rel = $currentHost->relation($field->relationName());
                 $existingId = is_array($rel) ? ($rel['id'] ?? null) : null;
 
@@ -278,9 +291,7 @@ final readonly class ResolveEmbeddedRelationsUseCase
     {
         $skip = [];
         foreach ($embeddedDef->fields() as $f) {
-            if ($f instanceof AbstractRelationField
-                && $f->relationKind() === 'belongsTo'
-                && $f->target() === $hostModelClass) {
+            if ($f->pointsBackTo($hostModelClass)) {
                 $skip[] = $f->name();
             }
         }

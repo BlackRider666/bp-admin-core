@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Application\UseCases\Entity;
 
 use BlackParadise\CoreAdmin\Application\UseCases\Entity\BuildFormViewUseCase;
+use BlackParadise\CoreAdmin\Domain\Contracts\Action\ActionContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Auth\AuthorizationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Entity\RelationOptionsProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
@@ -18,6 +19,7 @@ use BlackParadise\CoreAdmin\Domain\Fields\TextField;
 use PHPUnit\Framework\TestCase;
 use Tests\Fixtures\StubCyclicEmbedDefinitionA;
 use Tests\Fixtures\StubEmbeddedDefinition;
+use Tests\Fixtures\StubEmbeddedDefinitionWithHostBackRef;
 use Tests\Fixtures\StubEmbeddedDefinitionWithRelations;
 use Tests\Fixtures\StubSelfReferencingEmbeddedDefinition;
 
@@ -128,10 +130,12 @@ final class BuildFormViewUseCaseTest extends TestCase
     // RelationOptionsProviderContract integration
     // -------------------------------------------------------------------------
 
-    public function test_execute_without_options_provider_does_not_call_anything(): void
+    public function test_execute_without_provider_non_embedded_relation_has_no_options_in_meta(): void
     {
-        // Optional provider — three-arg constructor without provider must work
-        // (covers unit-test usage paths and adapters that don't need options).
+        // Optional provider — three-arg constructor without provider must work.
+        // For NON-embedded relation fields the provider gate still controls OPTIONS:
+        // without a provider no 'options' key is injected. (Embedded container fields
+        // ALWAYS receive meta['embeddedFields'] regardless of the provider — A8.)
         $field = BelongsToField::make('author_id', 'App\\Models\\Author');
 
         $this->auth->method('can')->willReturn(true);
@@ -141,7 +145,7 @@ final class BuildFormViewUseCaseTest extends TestCase
         $result = $useCase->execute('create');
 
         self::assertCount(1, $result);
-        self::assertSame([], $result[0]->meta());
+        self::assertArrayNotHasKey('options', $result[0]->meta());
     }
 
     public function test_execute_with_options_provider_decorates_belongs_to_field_meta(): void
@@ -455,5 +459,221 @@ final class BuildFormViewUseCaseTest extends TestCase
         // that would recurse back to A are cut by the guard.
         $names = array_map(fn($f) => $f->name(), $embeddedFields);
         self::assertContains('a_name', $names, 'non-cyclic sub-fields must still be included');
+    }
+
+    // -------------------------------------------------------------------------
+    // A7 / A8 — always-emit embeddedFields + host-FK skip (Slice 2 / C5)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Build a lightweight EntityDefinition from a field list and optional model class.
+     * Avoids mock-property PHPStan issues while keeping tests concise.
+     *
+     * @param list<FieldContract> $fields
+     */
+    private function makeDefinition(array $fields, string $modelClass = 'App\\Models\\Entity'): EntityDefinitionContract
+    {
+        return new class ($fields, $modelClass) implements EntityDefinitionContract {
+            /**
+             * @param list<FieldContract> $fields
+             */
+            public function __construct(
+                private readonly array $fields,
+                private readonly string $modelClass,
+            ) {}
+
+            public function name(): string
+            {
+                return 'test';
+            }
+
+            public function label(): string
+            {
+                return 'Test';
+            }
+
+            public function keyField(): string
+            {
+                return 'id';
+            }
+
+            public function keyType(): string
+            {
+                return 'int';
+            }
+
+            public function modelClass(): string
+            {
+                return $this->modelClass;
+            }
+
+            /** @return list<FieldContract> */
+            public function fields(): array
+            {
+                return $this->fields;
+            }
+
+            /** @return list<ActionContract> */
+            public function actions(): array
+            {
+                return [];
+            }
+
+            public function defaultPerPage(): int
+            {
+                return 25;
+            }
+
+            /** @return list<string> */
+            public function searchFields(): array
+            {
+                return [];
+            }
+        };
+    }
+
+    public function test_execute_without_provider_embedded_container_has_embedded_fields_in_meta(): void
+    {
+        // Slice 2 / A8 invariant: meta['embeddedFields'] must be emitted on an
+        // embedded container field even when NO RelationOptionsProvider is injected.
+        // Pre-IMPL: the gate is still provider-only → meta is empty → RED.
+        $embeddedField = BelongsToField::make('address_id', 'App\\Models\\Address')
+            ->embed(StubEmbeddedDefinitionWithRelations::class);
+
+        $this->auth->method('can')->willReturn(true);
+        $this->definition->method('fields')->willReturn([$embeddedField]);
+
+        $useCase = new BuildFormViewUseCase($this->auth, $this->definition);
+        $result = $useCase->execute('create');
+
+        self::assertCount(1, $result);
+
+        self::assertArrayHasKey(
+            'embeddedFields',
+            $result[0]->meta(),
+            'embedded container must have meta["embeddedFields"] without a RelationOptionsProvider',
+        );
+        self::assertIsArray($result[0]->meta()['embeddedFields']);
+        // StubEmbeddedDefinitionWithRelations: TextField('name'), BelongsToField('city_id'),
+        // BelongsToManyField('tags') — all visibleOnForm() by default → 3 sub-fields.
+        self::assertCount(3, $result[0]->meta()['embeddedFields']);
+    }
+
+    public function test_execute_a8_embedded_fields_identical_with_and_without_provider(): void
+    {
+        // A8: the embeddedFields list must be IDENTICAL regardless of whether a
+        // RelationOptionsProvider is injected. The provider decorates sub-field
+        // OPTIONS only; it must not affect which fields appear in the list.
+        // Pre-IMPL: without provider → no embeddedFields → first assertIsArray fails → RED.
+        $this->auth->method('can')->willReturn(true);
+
+        $provider = $this->createMock(RelationOptionsProviderContract::class);
+        $provider->method('options')->willReturn([]);
+
+        // Fresh field instances for each run — withMeta mutates in place.
+        $fieldWith = BelongsToField::make('address_id', 'App\\Models\\Address')
+            ->embed(StubEmbeddedDefinitionWithRelations::class);
+        $fieldWithout = BelongsToField::make('address_id', 'App\\Models\\Address')
+            ->embed(StubEmbeddedDefinitionWithRelations::class);
+
+        $defWith = $this->makeDefinition([$fieldWith]);
+        $defWithout = $this->makeDefinition([$fieldWithout]);
+
+        $resultWith = (new BuildFormViewUseCase($this->auth, $defWith, $provider))->execute('create');
+        $resultWithout = (new BuildFormViewUseCase($this->auth, $defWithout))->execute('create');
+
+        $metaWith = $resultWith[0]->meta();
+        $metaWithout = $resultWithout[0]->meta();
+
+        self::assertIsArray(
+            $metaWithout['embeddedFields'] ?? null,
+            'embeddedFields must exist without provider (A8)',
+        );
+        self::assertIsArray(
+            $metaWith['embeddedFields'] ?? null,
+            'embeddedFields must exist with provider',
+        );
+
+        /** @var list<FieldContract> $fieldsWith */
+        $fieldsWith = $metaWith['embeddedFields'];
+        /** @var list<FieldContract> $fieldsWithout */
+        $fieldsWithout = $metaWithout['embeddedFields'];
+
+        $namesWith = array_map(static fn(FieldContract $f): string => $f->name(), $fieldsWith);
+        $namesWithout = array_map(static fn(FieldContract $f): string => $f->name(), $fieldsWithout);
+        sort($namesWith);
+        sort($namesWithout);
+
+        self::assertSame(
+            $namesWith,
+            $namesWithout,
+            'embeddedFields list must be identical with and without provider (A8)',
+        );
+    }
+
+    public function test_execute_a7_embedded_back_fk_is_absent_from_embedded_fields(): void
+    {
+        // A7 (negative): a BelongsTo sub-field whose target() === entityDefinition->modelClass()
+        // (i.e. pointsBackTo($hostModelClass) is true) must be ABSENT from meta['embeddedFields'].
+        // Pre-IMPL: no FK-skip in core → post_id is wrongly present → assertNotContains fails → RED.
+        $hostModelClass = 'App\\Models\\Post';
+
+        $embeddedField = BelongsToField::make('address_id', 'App\\Models\\Address')
+            ->embed(StubEmbeddedDefinitionWithHostBackRef::class);
+
+        // Use a provider so embeddedFields IS built (tests FK-skip, not the missing-provider path).
+        $provider = $this->createMock(RelationOptionsProviderContract::class);
+        $provider->method('options')->willReturn([]);
+
+        $this->auth->method('can')->willReturn(true);
+
+        $def = $this->makeDefinition([$embeddedField], $hostModelClass);
+        $useCase = new BuildFormViewUseCase($this->auth, $def, $provider);
+        $result = $useCase->execute('create');
+
+        $embeddedFields = $result[0]->meta()['embeddedFields'] ?? null;
+        self::assertIsArray($embeddedFields, 'embedded container must have meta["embeddedFields"]');
+
+        /** @var list<FieldContract> $embeddedFields */
+        $names = array_map(static fn(FieldContract $f): string => $f->name(), $embeddedFields);
+
+        self::assertNotContains(
+            'post_id',
+            $names,
+            'back-FK sub-field (BelongsTo pointing at host model) must be filtered out of embeddedFields (A7)',
+        );
+    }
+
+    public function test_execute_a7_embedded_fk_to_different_model_is_present_in_embedded_fields(): void
+    {
+        // A7 (positive): a BelongsTo sub-field whose target() !== entityDefinition->modelClass()
+        // must remain in meta['embeddedFields']. Only the back-FK is removed.
+        // Pre-IMPL: current impl includes all visibleOnForm() sub-fields (no FK-skip), so
+        // category_id IS present already → assertContains passes → pre-green.
+        $hostModelClass = 'App\\Models\\Post';
+
+        $embeddedField = BelongsToField::make('address_id', 'App\\Models\\Address')
+            ->embed(StubEmbeddedDefinitionWithHostBackRef::class);
+
+        $provider = $this->createMock(RelationOptionsProviderContract::class);
+        $provider->method('options')->willReturn([]);
+
+        $this->auth->method('can')->willReturn(true);
+
+        $def = $this->makeDefinition([$embeddedField], $hostModelClass);
+        $useCase = new BuildFormViewUseCase($this->auth, $def, $provider);
+        $result = $useCase->execute('create');
+
+        $embeddedFields = $result[0]->meta()['embeddedFields'] ?? null;
+        self::assertIsArray($embeddedFields, 'embedded container must have meta["embeddedFields"]');
+
+        /** @var list<FieldContract> $embeddedFields */
+        $names = array_map(static fn(FieldContract $f): string => $f->name(), $embeddedFields);
+
+        self::assertContains(
+            'category_id',
+            $names,
+            'BelongsTo pointing to a different model must remain in embeddedFields (A7 positive)',
+        );
     }
 }
