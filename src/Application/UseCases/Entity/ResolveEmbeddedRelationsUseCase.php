@@ -287,9 +287,12 @@ final readonly class ResolveEmbeddedRelationsUseCase
      *
      * @return list<string>
      */
-    private function backForeignKeyFields(EntityDefinitionContract $embeddedDef, string $hostModelClass): array
+    private function backForeignKeyFields(EntityDefinitionContract $embeddedDef, ?string $hostModelClass): array
     {
         $skip = [];
+        if ($hostModelClass === null) {
+            return $skip;
+        }
         foreach ($embeddedDef->fields() as $f) {
             if ($f->pointsBackTo($hostModelClass)) {
                 $skip[] = $f->name();

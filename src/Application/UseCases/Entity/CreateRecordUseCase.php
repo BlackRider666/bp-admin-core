@@ -11,14 +11,23 @@ use BlackParadise\CoreAdmin\Domain\Contracts\Events\EventDispatcherContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\LocaleProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Validation\ValidationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Events\EntityCreated;
+use BlackParadise\CoreAdmin\Domain\Exceptions\CapabilityDeniedException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\UnauthorizedException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\ValidationException;
 use BlackParadise\CoreAdmin\Domain\Mutators\EntityMutatorInterface;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\Capability;
 use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityKey;
 use LogicException;
 
 final readonly class CreateRecordUseCase
 {
+    /**
+     * @param bool $enforceCapability When false the standalone {@see Capability::Create} gate is skipped.
+     *                                Reserved for embedded-child creation: that capability governs the
+     *                                standalone create surface only, so embed-only (non-creatable)
+     *                                definitions can still be created as children of a host.
+     *                                Authorization is enforced regardless.
+     */
     public function __construct(
         private EntityMutatorInterface $mutator,
         private AuthorizationProviderContract $authorizationProvider,
@@ -26,16 +35,22 @@ final readonly class CreateRecordUseCase
         private ValidationProviderContract $validator,
         private EventDispatcherContract $dispatcher,
         private LocaleProviderContract $localeProvider,
+        private bool $enforceCapability = true,
     ) {}
 
     /**
      * @throws UnauthorizedException
+     * @throws CapabilityDeniedException
      * @throws ValidationException
      */
     public function execute(EntityRecordContract $record): EntityRecordContract
     {
         if (!$this->authorizationProvider->can('create', $this->entityDefinition)) {
             throw new UnauthorizedException($this->entityDefinition->name(), 'create');
+        }
+
+        if ($this->enforceCapability && !$this->entityDefinition->capabilities()->allows(Capability::Create)) {
+            throw new CapabilityDeniedException($this->entityDefinition->name(), Capability::Create);
         }
 
         $this->validator->validate(

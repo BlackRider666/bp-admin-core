@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace BlackParadise\CoreAdmin\Application\UseCases\Entity;
 
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
+use BlackParadise\CoreAdmin\Domain\Contracts\Fields\FieldContract;
+use BlackParadise\CoreAdmin\Domain\Fields\Base\AbstractField;
+use BlackParadise\CoreAdmin\Domain\Fields\FileField;
+use BlackParadise\CoreAdmin\Domain\Fields\ImageField;
+use BlackParadise\CoreAdmin\Domain\Fields\MorphFileField;
 
 /**
  * Builds a field-keyed validation rules array from an EntityDefinition.
@@ -66,7 +71,15 @@ final readonly class RuleBuilder
                 if ($this->context === 'update' && !in_array($field->name(), $presentKeys, true)) {
                     $fieldRules = $this->relaxRequired($fieldRules);
                 }
+                if ($key === $field->name() && $field instanceof AbstractField && $field->isRequiredOnCreate()) {
+                    $fieldRules = $this->applyRequiredOnCreate($fieldRules);
+                }
                 $rules[$key] = $fieldRules;
+            }
+            if ($this->context === 'update' && $this->isFileField($field)) {
+                $rules[$field->name() . '__clear'] = $this->isRequiredFile($field)
+                    ? ['prohibited']
+                    : ['nullable', 'boolean'];
             }
         }
         return $rules;
@@ -80,6 +93,35 @@ final readonly class RuleBuilder
     public static function fromDefinition(EntityDefinitionContract $definition): array
     {
         return (new self())->build($definition);
+    }
+
+    /**
+     * @param array<string> $fieldRules
+     * @return array<string>
+     */
+    private function applyRequiredOnCreate(array $fieldRules): array
+    {
+        $rules = array_values(array_filter(
+            $fieldRules,
+            fn(string $r): bool => $r !== 'required' && $r !== 'nullable',
+        ));
+
+        return $this->context === 'update'
+            ? ['nullable', ...$rules]
+            : ['required', ...$rules];
+    }
+
+    private function isFileField(FieldContract $field): bool
+    {
+        return $field instanceof FileField || $field instanceof ImageField || $field instanceof MorphFileField;
+    }
+
+    private function isRequiredFile(FieldContract $field): bool
+    {
+        if ($field instanceof AbstractField && $field->isRequiredOnCreate()) {
+            return true;
+        }
+        return in_array('required', $field->expandRules([], 'create')[$field->name()] ?? [], true);
     }
 
     /**

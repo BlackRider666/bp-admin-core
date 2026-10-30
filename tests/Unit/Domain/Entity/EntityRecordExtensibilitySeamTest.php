@@ -26,6 +26,7 @@ use BlackParadise\CoreAdmin\Domain\Contracts\Fields\FieldContract;
 use BlackParadise\CoreAdmin\Domain\Entity\EntityRecord;
 use BlackParadise\CoreAdmin\Domain\Fields\Base\AbstractRelationField;
 use BlackParadise\CoreAdmin\Domain\Fields\RelationKind;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityCapabilities;
 use BlackParadise\CoreAdmin\Domain\ValueObjects\FieldName;
 use Tests\Fixtures\StubEmbeddedDefinition;
 
@@ -75,6 +76,34 @@ function slice0_seam_make_definition(array $fields, string $modelClass = 'App\\M
         public function searchFields(): array
         {
             return [];
+        }
+
+        public function resolveName(): string
+        {
+            return 'seam_entity';
+        }
+
+        public function capabilities(): EntityCapabilities
+        {
+            return EntityCapabilities::all();
+        }
+
+        /**
+         * @return array<mixed>
+         */
+        public function filters(): array
+        {
+            return [];
+        }
+
+        public function repository(): null
+        {
+            return null;
+        }
+
+        public function mutator(): null
+        {
+            return null;
         }
     };
 }

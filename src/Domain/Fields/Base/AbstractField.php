@@ -57,6 +57,30 @@ abstract class AbstractField implements FieldContract
     // FieldContract — getters
     // -------------------------------------------------------------------------
 
+    /**
+     * Distinct "included in full-text search" flag. Set by {@see searchable()};
+     * independent of {@see $filterable} (which searchable() also enables for BC).
+     */
+    private bool $searchable = false;
+
+    private bool $requiredOnCreate = false;
+
+    /**
+     * Required on create, optional (nullable) on update. Useful for file
+     * fields where an existing value satisfies the requirement.
+     */
+    public function requiredOnCreate(bool $value = true): static
+    {
+        $this->requiredOnCreate = $value;
+
+        return $this;
+    }
+
+    public function isRequiredOnCreate(): bool
+    {
+        return $this->requiredOnCreate;
+    }
+
     public function name(): string
     {
         return $this->name;
@@ -160,6 +184,15 @@ abstract class AbstractField implements FieldContract
     public function isFilterable(): bool
     {
         return $this->filterable;
+    }
+
+    /**
+     * Whether this field participates in full-text search. Not part of
+     * FieldContract; consumers must check `instanceof AbstractField`.
+     */
+    public function isSearchable(): bool
+    {
+        return $this->searchable;
     }
 
     public function meta(): array
@@ -332,8 +365,14 @@ abstract class AbstractField implements FieldContract
         return $this;
     }
 
+    /**
+     * Mark the field as full-text searchable. Also enables filterable(true)
+     * for backward compatibility.
+     */
     public function searchable(): static
     {
+        $this->searchable = true;
+
         return $this->filterable(true);
     }
 

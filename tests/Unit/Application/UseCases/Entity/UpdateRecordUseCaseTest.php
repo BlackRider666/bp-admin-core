@@ -12,13 +12,17 @@ use BlackParadise\CoreAdmin\Domain\Contracts\LocaleProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Validation\ValidationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Entity\EntityRecord;
 use BlackParadise\CoreAdmin\Domain\Events\EntityUpdated;
+use BlackParadise\CoreAdmin\Domain\Exceptions\CapabilityDeniedException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\EntityNotFoundException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\UnauthorizedException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\ValidationException;
 use BlackParadise\CoreAdmin\Domain\Fields\TranslatableField;
 use BlackParadise\CoreAdmin\Domain\Mutators\EntityMutatorInterface;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\Capability;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityCapabilities;
 use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityKey;
 use LogicException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class UpdateRecordUseCaseTest extends TestCase
@@ -35,6 +39,7 @@ final class UpdateRecordUseCaseTest extends TestCase
         $this->mutator = $this->createMock(EntityMutatorInterface::class);
         $this->auth = $this->createMock(AuthorizationProviderContract::class);
         $this->definition = $this->createMock(EntityDefinitionContract::class);
+        $this->definition->method('capabilities')->willReturn(EntityCapabilities::all());
         $this->validator = $this->createMock(ValidationProviderContract::class);
         $this->dispatcher = $this->createMock(EventDispatcherContract::class);
         // Task 1.2 will add LocaleProviderContract as 6th ctor arg.
@@ -228,6 +233,7 @@ final class UpdateRecordUseCaseTest extends TestCase
         $titleField = TranslatableField::make('title')->required();
 
         $definition = $this->createMock(EntityDefinitionContract::class);
+        $definition->method('capabilities')->willReturn(EntityCapabilities::all());
         $definition->method('name')->willReturn('posts');
         $definition->method('keyField')->willReturn('id');
         $definition->method('keyType')->willReturn('int');
@@ -272,5 +278,66 @@ final class UpdateRecordUseCaseTest extends TestCase
             $capturedRules,
             "LocaleProvider locales must drive locale-aware keys — 'title.uk' expected",
         );
+    }
+
+    /**
+     * @return array{0: UpdateRecordUseCase, 1: EntityDefinitionContract, 2: MockObject&EntityMutatorInterface}
+     */
+    private function makeNonUpdatableUseCase(bool $enforceCapability, bool $authorized): array
+    {
+        $definition = $this->createMock(EntityDefinitionContract::class);
+        $definition->method('capabilities')->willReturn(
+            EntityCapabilities::all()->without(Capability::Update),
+        );
+        $definition->method('name')->willReturn('publications');
+        $definition->method('keyField')->willReturn('id');
+        $definition->method('keyType')->willReturn('int');
+        $definition->method('fields')->willReturn([]);
+
+        $auth = $this->createMock(AuthorizationProviderContract::class);
+        $auth->method('can')->willReturn($authorized);
+        $mutator = $this->createMock(EntityMutatorInterface::class);
+
+        $useCase = new UpdateRecordUseCase(
+            $mutator,
+            $auth,
+            $definition,
+            $this->createMock(ValidationProviderContract::class),
+            $this->createMock(EventDispatcherContract::class),
+            $this->createMock(LocaleProviderContract::class),
+            enforceCapability: $enforceCapability,
+        );
+
+        return [$useCase, $definition, $mutator];
+    }
+
+    public function test_execute_on_non_updatable_definition_is_denied_by_default(): void
+    {
+        [$useCase, $definition, $mutator] = $this->makeNonUpdatableUseCase(true, true);
+        $mutator->expects(self::never())->method('update');
+
+        $this->expectException(CapabilityDeniedException::class);
+        $useCase->execute(new EntityKey(1, 'int'), new EntityRecord($definition, ['title' => 'x']));
+    }
+
+    public function test_execute_without_capability_enforcement_updates_embedded_child(): void
+    {
+        [$useCase, $definition, $mutator] = $this->makeNonUpdatableUseCase(false, true);
+        $updated = new EntityRecord($definition, ['id' => 1, 'title' => 'x']);
+        $mutator->expects(self::once())->method('update')->willReturn($updated);
+
+        self::assertSame(
+            $updated,
+            $useCase->execute(new EntityKey(1, 'int'), new EntityRecord($definition, ['title' => 'x'])),
+        );
+    }
+
+    public function test_execute_without_capability_enforcement_still_authorizes_first(): void
+    {
+        [$useCase, $definition, $mutator] = $this->makeNonUpdatableUseCase(false, false);
+        $mutator->expects(self::never())->method('update');
+
+        $this->expectException(UnauthorizedException::class);
+        $useCase->execute(new EntityKey(1, 'int'), new EntityRecord($definition, ['title' => 'x']));
     }
 }

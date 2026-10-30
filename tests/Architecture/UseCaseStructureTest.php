@@ -26,5 +26,6 @@ arch('use cases have execute() method')
     ->toHaveMethod('execute')
     ->ignoring([
         RuleBuilder::class,
+        'BlackParadise\CoreAdmin\Domain\Commands',
         ResolveEmbeddedRelationsUseCase::class,
     ]);

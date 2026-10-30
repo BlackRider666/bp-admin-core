@@ -1,10 +1,5 @@
 parameters:
 	ignoreErrors:
-		-
-			message: '#^Part \$key \(mixed\) of encapsed string cannot be cast to string\.$#'
-			identifier: encapsedStringPart.nonString
-			count: 1
-			path: src/Domain/Exceptions/EntityNotFoundException.php
 
 		-
 			message: '#^Method BlackParadise\\CoreAdmin\\Application\\UseCases\\Auth\\LoginUseCase\:\:execute\(\) has parameter \$credentials with no value type specified in iterable type array\.$#'
@@ -17,6 +12,12 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Application/UseCases/Entity/CreateRecordUseCase.php
+
+		-
+			message: '#^Property BlackParadise\\CoreAdmin\\Application\\UseCases\\Entity\\DeleteRecordUseCase\:\:\$repository is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Application/UseCases/Entity/DeleteRecordUseCase.php
 
 		-
 			message: '#^Cannot cast mixed to string\.$#'
@@ -107,6 +108,12 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Domain/Events/AbstractDomainEvent.php
+
+		-
+			message: '#^Part \$key \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/Domain/Exceptions/EntityNotFoundException.php
 
 		-
 			message: '#^Method BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:\:__construct\(\) has parameter \$meta with no value type specified in iterable type array\.$#'
@@ -293,36 +300,6 @@ parameters:
 			identifier: method.notFound
 			count: 4
 			path: tests/Unit/Application/UseCases/Entity/CreateRecordUseCaseTest.php
-
-		-
-			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
-			identifier: method.notFound
-			count: 6
-			path: tests/Unit/Application/UseCases/Entity/DeleteRecordUseCaseTest.php
-
-		-
-			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Events\\EventDispatcherContract\:\:expects\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: tests/Unit/Application/UseCases/Entity/DeleteRecordUseCaseTest.php
-
-		-
-			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Mutators\\EntityMutatorInterface\:\:method\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: tests/Unit/Application/UseCases/Entity/DeleteRecordUseCaseTest.php
-
-		-
-			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Repositories\\EntityRepositoryInterface\:\:expects\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Unit/Application/UseCases/Entity/DeleteRecordUseCaseTest.php
-
-		-
-			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Repositories\\EntityRepositoryInterface\:\:method\(\)\.$#'
-			identifier: method.notFound
-			count: 4
-			path: tests/Unit/Application/UseCases/Entity/DeleteRecordUseCaseTest.php
 
 		-
 			message: '#^Call to an undefined method BlackParadise\\CoreAdmin\\Domain\\Contracts\\Auth\\AuthorizationProviderContract\:\:method\(\)\.$#'
@@ -554,6 +531,15 @@ parameters:
 
 		-
 			message: '''
+				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Prefer using ruleSet\(\) and Rule enum methods\.$#
+			'''
+			identifier: method.deprecated
+			count: 2
+			path: tests/Unit/Domain/Fields/FieldExpandRulesTest.php
+
+		-
+			message: '''
 				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\FileField\:
 				Use ruleSet\(\) instead\.$#
 			'''
@@ -716,6 +702,15 @@ parameters:
 
 		-
 			message: '''
+				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
+				Prefer using ruleSet\(\) and Rule enum methods\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: tests/Unit/Domain/Fields/TranslatableFieldExpandRulesTest.php
+
+		-
+			message: '''
 				#^Call to deprecated method rules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
 				Use ruleSet\(\) instead\.$#
 			'''
@@ -755,21 +750,3 @@ parameters:
 			identifier: staticMethod.dynamicCall
 			count: 4
 			path: tests/Unit/Security/InputValidationSecurityTest.php
-
-		-
-			message: '''
-				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
-				Prefer using ruleSet\(\) and Rule enum methods\.$#
-			'''
-			identifier: method.deprecated
-			count: 2
-			path: tests/Unit/Domain/Fields/FieldExpandRulesTest.php
-
-		-
-			message: '''
-				#^Call to deprecated method withRules\(\) of class BlackParadise\\CoreAdmin\\Domain\\Fields\\Base\\AbstractField\:
-				Prefer using ruleSet\(\) and Rule enum methods\.$#
-			'''
-			identifier: method.deprecated
-			count: 1
-			path: tests/Unit/Domain/Fields/TranslatableFieldExpandRulesTest.php

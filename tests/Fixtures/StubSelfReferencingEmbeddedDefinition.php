@@ -7,6 +7,7 @@ namespace Tests\Fixtures;
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
 use BlackParadise\CoreAdmin\Domain\Fields\BelongsToField;
 use BlackParadise\CoreAdmin\Domain\Fields\TextField;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityCapabilities;
 use stdClass;
 
 /**
@@ -67,5 +68,33 @@ final class StubSelfReferencingEmbeddedDefinition implements EntityDefinitionCon
     public function searchFields(): array
     {
         return [];
+    }
+
+    public function resolveName(): string
+    {
+        return 'self_referencing';
+    }
+
+    public function capabilities(): EntityCapabilities
+    {
+        return EntityCapabilities::all();
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function filters(): array
+    {
+        return [];
+    }
+
+    public function repository(): null
+    {
+        return null;
+    }
+
+    public function mutator(): null
+    {
+        return null;
     }
 }

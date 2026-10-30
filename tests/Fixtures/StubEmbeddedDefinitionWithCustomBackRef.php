@@ -9,6 +9,7 @@ use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionCo
 use BlackParadise\CoreAdmin\Domain\Contracts\Fields\FieldContract;
 use BlackParadise\CoreAdmin\Domain\Fields\Base\AbstractField;
 use BlackParadise\CoreAdmin\Domain\Fields\TextField;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityCapabilities;
 
 /**
  * Embedded definition whose form-visible sub-fields include a CUSTOM field that
@@ -68,7 +69,7 @@ final class StubEmbeddedDefinitionWithCustomBackRef implements EntityDefinitionC
         ];
     }
 
-    /** @return list<ActionContract> */
+    /** @return list<class-string<ActionContract>> */
     public function actions(): array
     {
         return [];
@@ -83,5 +84,33 @@ final class StubEmbeddedDefinitionWithCustomBackRef implements EntityDefinitionC
     public function searchFields(): array
     {
         return [];
+    }
+
+    public function resolveName(): string
+    {
+        return 'embedded_with_custom_back_ref';
+    }
+
+    public function capabilities(): EntityCapabilities
+    {
+        return EntityCapabilities::all();
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function filters(): array
+    {
+        return [];
+    }
+
+    public function repository(): null
+    {
+        return null;
+    }
+
+    public function mutator(): null
+    {
+        return null;
     }
 }

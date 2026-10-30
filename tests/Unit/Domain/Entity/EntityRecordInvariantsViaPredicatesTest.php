@@ -30,6 +30,7 @@ use BlackParadise\CoreAdmin\Domain\Fields\MorphFileField;
 use BlackParadise\CoreAdmin\Domain\Fields\MorphManyField;
 use BlackParadise\CoreAdmin\Domain\Fields\MorphToField;
 use BlackParadise\CoreAdmin\Domain\Fields\TextField;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityCapabilities;
 use BlackParadise\CoreAdmin\Domain\ValueObjects\FieldName;
 
 /**
@@ -78,6 +79,34 @@ function slice0_invariants_make_definition(array $fields): EntityDefinitionContr
         public function searchFields(): array
         {
             return [];
+        }
+
+        public function resolveName(): string
+        {
+            return 'test_invariants';
+        }
+
+        public function capabilities(): EntityCapabilities
+        {
+            return EntityCapabilities::all();
+        }
+
+        /**
+         * @return array<mixed>
+         */
+        public function filters(): array
+        {
+            return [];
+        }
+
+        public function repository(): null
+        {
+            return null;
+        }
+
+        public function mutator(): null
+        {
+            return null;
         }
     };
 }

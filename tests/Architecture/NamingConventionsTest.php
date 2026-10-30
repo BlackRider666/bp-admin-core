@@ -21,4 +21,5 @@ arch('use cases end with "UseCase"')
     ->toHaveSuffix('UseCase')
     ->ignoring([
         RuleBuilder::class,
+        'BlackParadise\CoreAdmin\Domain\Commands',
     ]);

@@ -9,6 +9,7 @@ use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionCo
 use BlackParadise\CoreAdmin\Domain\Contracts\Fields\FieldContract;
 use BlackParadise\CoreAdmin\Domain\Fields\BelongsToField;
 use BlackParadise\CoreAdmin\Domain\Fields\TextField;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityCapabilities;
 
 /**
  * Level-2 embedded definition for 2-level nested-embed host-threading tests
@@ -63,7 +64,7 @@ final class StubNestedChildDefinition implements EntityDefinitionContract
         ];
     }
 
-    /** @return list<ActionContract> */
+    /** @return list<class-string<ActionContract>> */
     public function actions(): array
     {
         return [];
@@ -78,5 +79,33 @@ final class StubNestedChildDefinition implements EntityDefinitionContract
     public function searchFields(): array
     {
         return [];
+    }
+
+    public function resolveName(): string
+    {
+        return 'children';
+    }
+
+    public function capabilities(): EntityCapabilities
+    {
+        return EntityCapabilities::all();
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function filters(): array
+    {
+        return [];
+    }
+
+    public function repository(): null
+    {
+        return null;
+    }
+
+    public function mutator(): null
+    {
+        return null;
     }
 }

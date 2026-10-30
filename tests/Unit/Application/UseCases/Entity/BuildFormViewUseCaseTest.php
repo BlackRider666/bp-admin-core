@@ -16,6 +16,7 @@ use BlackParadise\CoreAdmin\Domain\Fields\BelongsToField;
 use BlackParadise\CoreAdmin\Domain\Fields\BelongsToManyField;
 use BlackParadise\CoreAdmin\Domain\Fields\HasManyField;
 use BlackParadise\CoreAdmin\Domain\Fields\TextField;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityCapabilities;
 use PHPUnit\Framework\TestCase;
 use Tests\Fixtures\StubCyclicEmbedDefinitionA;
 use Tests\Fixtures\StubEmbeddedDefinition;
@@ -513,7 +514,7 @@ final class BuildFormViewUseCaseTest extends TestCase
                 return $this->fields;
             }
 
-            /** @return list<ActionContract> */
+            /** @return list<class-string<ActionContract>> */
             public function actions(): array
             {
                 return [];
@@ -528,6 +529,34 @@ final class BuildFormViewUseCaseTest extends TestCase
             public function searchFields(): array
             {
                 return [];
+            }
+
+            public function resolveName(): string
+            {
+                return 'test';
+            }
+
+            public function capabilities(): EntityCapabilities
+            {
+                return EntityCapabilities::all();
+            }
+
+            /**
+             * @return array<mixed>
+             */
+            public function filters(): array
+            {
+                return [];
+            }
+
+            public function repository(): null
+            {
+                return null;
+            }
+
+            public function mutator(): null
+            {
+                return null;
             }
         };
     }

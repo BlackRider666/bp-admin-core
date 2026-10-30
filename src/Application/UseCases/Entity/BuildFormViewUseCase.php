@@ -75,7 +75,7 @@ final readonly class BuildFormViewUseCase
      * @param array<class-string, true> $visited Already-processed embedded definition classes
      *                                           on the current recursion path (cycle guard).
      */
-    private function decorateField(FieldContract $field, string $hostModelClass, array $visited): void
+    private function decorateField(FieldContract $field, ?string $hostModelClass, array $visited): void
     {
         if (!$field instanceof RelationFieldContract) {
             return;
@@ -134,7 +134,7 @@ final readonly class BuildFormViewUseCase
      *
      * @param array<class-string, true> $visited
      */
-    private function buildEmbeddedFields(RelationFieldContract $field, string $hostModelClass, array $visited): void
+    private function buildEmbeddedFields(RelationFieldContract $field, ?string $hostModelClass, array $visited): void
     {
         $embeddedDefinitionClass = $field->embeddedDefinition();
         if ($embeddedDefinitionClass === null || !($field instanceof AbstractField)) {
@@ -168,7 +168,7 @@ final readonly class BuildFormViewUseCase
         // no inlined relation-kind check to drift out of sync.
         $embeddedFields = array_values(array_filter(
             $embeddedDef->fields(),
-            fn(FieldContract $f): bool => $f->visibleOnForm() && !$f->pointsBackTo($hostModelClass),
+            fn(FieldContract $f): bool => $f->visibleOnForm() && ($hostModelClass === null || !$f->pointsBackTo($hostModelClass)),
         ));
 
         // Recursively process each sub-field: build their embeddedFields and

@@ -12,11 +12,15 @@ use BlackParadise\CoreAdmin\Domain\Contracts\LocaleProviderContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Validation\ValidationProviderContract;
 use BlackParadise\CoreAdmin\Domain\Entity\EntityRecord;
 use BlackParadise\CoreAdmin\Domain\Events\EntityCreated;
+use BlackParadise\CoreAdmin\Domain\Exceptions\CapabilityDeniedException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\UnauthorizedException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\ValidationException;
 use BlackParadise\CoreAdmin\Domain\Fields\TranslatableField;
 use BlackParadise\CoreAdmin\Domain\Mutators\EntityMutatorInterface;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\Capability;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityCapabilities;
 use LogicException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class CreateRecordUseCaseTest extends TestCase
@@ -33,6 +37,7 @@ final class CreateRecordUseCaseTest extends TestCase
         $this->mutator = $this->createMock(EntityMutatorInterface::class);
         $this->auth = $this->createMock(AuthorizationProviderContract::class);
         $this->definition = $this->createMock(EntityDefinitionContract::class);
+        $this->definition->method('capabilities')->willReturn(EntityCapabilities::all());
         $this->validator = $this->createMock(ValidationProviderContract::class);
         $this->dispatcher = $this->createMock(EventDispatcherContract::class);
         // Task 1.2 will add LocaleProviderContract as 6th ctor arg.
@@ -210,6 +215,7 @@ final class CreateRecordUseCaseTest extends TestCase
         $titleField = TranslatableField::make('title')->required();
 
         $definition = $this->createMock(EntityDefinitionContract::class);
+        $definition->method('capabilities')->willReturn(EntityCapabilities::all());
         $definition->method('name')->willReturn('posts');
         $definition->method('keyField')->willReturn('id');
         $definition->method('keyType')->willReturn('int');
@@ -258,5 +264,65 @@ final class CreateRecordUseCaseTest extends TestCase
             $capturedRules,
             "Flat 'title' key must not appear when LocaleProvider supplies locales",
         );
+    }
+
+    /**
+     * @return array{0: CreateRecordUseCase, 1: EntityDefinitionContract, 2: MockObject&EntityMutatorInterface, 3: MockObject&AuthorizationProviderContract}
+     */
+    private function makeNonCreatableUseCase(bool $enforceCapability, bool $authorized): array
+    {
+        $definition = $this->createMock(EntityDefinitionContract::class);
+        $definition->method('capabilities')->willReturn(
+            EntityCapabilities::all()->without(Capability::Create),
+        );
+        $definition->method('name')->willReturn('publications');
+        $definition->method('keyField')->willReturn('id');
+        $definition->method('keyType')->willReturn('int');
+        $definition->method('fields')->willReturn([]);
+
+        $auth = $this->createMock(AuthorizationProviderContract::class);
+        $auth->method('can')->willReturn($authorized);
+        $mutator = $this->createMock(EntityMutatorInterface::class);
+
+        $useCase = new CreateRecordUseCase(
+            $mutator,
+            $auth,
+            $definition,
+            $this->validator,
+            $this->dispatcher,
+            $this->localeProvider,
+            enforceCapability: $enforceCapability,
+        );
+
+        return [$useCase, $definition, $mutator, $auth];
+    }
+
+    public function test_execute_on_non_creatable_definition_is_denied_by_default(): void
+    {
+        [$useCase, $definition, $mutator] = $this->makeNonCreatableUseCase(true, true);
+        $mutator->expects(self::never())->method('create');
+
+        $this->expectException(CapabilityDeniedException::class);
+        $useCase->execute(new EntityRecord($definition, ['title' => 'x']));
+    }
+
+    public function test_execute_without_capability_enforcement_creates_embed_only_child(): void
+    {
+        [$useCase, $definition, $mutator] = $this->makeNonCreatableUseCase(false, true);
+        $created = new EntityRecord($definition, ['id' => 7, 'title' => 'x']);
+        $mutator->expects(self::once())->method('create')->willReturn($created);
+
+        $result = $useCase->execute(new EntityRecord($definition, ['title' => 'x']));
+
+        self::assertSame($created, $result);
+    }
+
+    public function test_execute_without_capability_enforcement_still_authorizes_first(): void
+    {
+        [$useCase, $definition, $mutator] = $this->makeNonCreatableUseCase(false, false);
+        $mutator->expects(self::never())->method('create');
+
+        $this->expectException(UnauthorizedException::class);
+        $useCase->execute(new EntityRecord($definition, ['title' => 'x']));
     }
 }

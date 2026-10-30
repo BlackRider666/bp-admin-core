@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Fixtures;
 
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityCapabilities;
 use stdClass;
 
 final class StubEntityDefinition implements EntityDefinitionContract
@@ -52,5 +53,33 @@ final class StubEntityDefinition implements EntityDefinitionContract
     public function searchFields(): array
     {
         return [];
+    }
+
+    public function resolveName(): string
+    {
+        return 'stub';
+    }
+
+    public function capabilities(): EntityCapabilities
+    {
+        return EntityCapabilities::all();
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function filters(): array
+    {
+        return [];
+    }
+
+    public function repository(): null
+    {
+        return null;
+    }
+
+    public function mutator(): null
+    {
+        return null;
     }
 }

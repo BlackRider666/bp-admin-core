@@ -8,6 +8,7 @@ use BlackParadise\CoreAdmin\Domain\Contracts\Action\ActionContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\EntityDefinition\EntityDefinitionContract;
 use BlackParadise\CoreAdmin\Domain\Contracts\Fields\FieldContract;
 use BlackParadise\CoreAdmin\Domain\Fields\HasManyField;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityCapabilities;
 
 /**
  * Top-level grandparent definition for 2-level nested-embed host-threading tests
@@ -56,7 +57,7 @@ final class StubNestedGrandparentDefinition implements EntityDefinitionContract
         ];
     }
 
-    /** @return list<ActionContract> */
+    /** @return list<class-string<ActionContract>> */
     public function actions(): array
     {
         return [];
@@ -71,5 +72,33 @@ final class StubNestedGrandparentDefinition implements EntityDefinitionContract
     public function searchFields(): array
     {
         return [];
+    }
+
+    public function resolveName(): string
+    {
+        return 'grandparents';
+    }
+
+    public function capabilities(): EntityCapabilities
+    {
+        return EntityCapabilities::all();
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function filters(): array
+    {
+        return [];
+    }
+
+    public function repository(): null
+    {
+        return null;
+    }
+
+    public function mutator(): null
+    {
+        return null;
     }
 }

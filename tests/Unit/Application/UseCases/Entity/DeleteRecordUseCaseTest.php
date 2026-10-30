@@ -13,15 +13,22 @@ use BlackParadise\CoreAdmin\Domain\Exceptions\EntityNotFoundException;
 use BlackParadise\CoreAdmin\Domain\Exceptions\UnauthorizedException;
 use BlackParadise\CoreAdmin\Domain\Mutators\EntityMutatorInterface;
 use BlackParadise\CoreAdmin\Domain\Repositories\EntityRepositoryInterface;
+use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityCapabilities;
 use BlackParadise\CoreAdmin\Domain\ValueObjects\EntityKey;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class DeleteRecordUseCaseTest extends TestCase
 {
+    /** @var EntityRepositoryInterface&MockObject */
     private EntityRepositoryInterface $repository;
+    /** @var EntityMutatorInterface&MockObject */
     private EntityMutatorInterface $mutator;
+    /** @var AuthorizationProviderContract&MockObject */
     private AuthorizationProviderContract $auth;
+    /** @var EntityDefinitionContract&MockObject */
     private EntityDefinitionContract $definition;
+    /** @var EventDispatcherContract&MockObject */
     private EventDispatcherContract $dispatcher;
 
     protected function setUp(): void
@@ -30,6 +37,7 @@ final class DeleteRecordUseCaseTest extends TestCase
         $this->mutator = $this->createMock(EntityMutatorInterface::class);
         $this->auth = $this->createMock(AuthorizationProviderContract::class);
         $this->definition = $this->createMock(EntityDefinitionContract::class);
+        $this->definition->method('capabilities')->willReturn(EntityCapabilities::all());
         $this->dispatcher = $this->createMock(EventDispatcherContract::class);
 
         $this->definition->method('name')->willReturn('users');
@@ -46,12 +54,11 @@ final class DeleteRecordUseCaseTest extends TestCase
         );
     }
 
-    public function test_execute_when_authorized_and_exists_and_delete_succeeds_returns_true(): void
+    public function test_execute_when_authorized_and_delete_succeeds_returns_true(): void
     {
         $key = new EntityKey(1, 'int');
 
         $this->auth->method('can')->with('delete', $this->definition)->willReturn(true);
-        $this->repository->method('exists')->with($this->definition, $key)->willReturn(true);
         $this->mutator->method('delete')->with($key, $this->definition)->willReturn(true);
         $this->dispatcher
             ->expects(self::once())
@@ -64,19 +71,20 @@ final class DeleteRecordUseCaseTest extends TestCase
         self::assertTrue($result);
     }
 
-    public function test_execute_when_delete_fails_does_not_dispatch_event_and_returns_false(): void
+    public function test_execute_when_delete_fails_does_not_dispatch_event_and_throws_not_found(): void
     {
         $key = new EntityKey(1, 'int');
 
         $this->auth->method('can')->willReturn(true);
-        $this->repository->method('exists')->willReturn(true);
+        $this->repository->method('exists')->willReturn(true); // legacy pre-check would pass; mutator decides
         $this->mutator->method('delete')->willReturn(false);
         $this->dispatcher->expects(self::never())->method('dispatch');
 
         $useCase = $this->makeUseCase();
-        $result = $useCase->execute($key);
 
-        self::assertFalse($result);
+        $this->expectException(EntityNotFoundException::class);
+
+        $useCase->execute($key);
     }
 
     public function test_execute_when_unauthorized_throws_unauthorized_exception(): void
@@ -96,7 +104,8 @@ final class DeleteRecordUseCaseTest extends TestCase
         $key = new EntityKey(404, 'int');
 
         $this->auth->method('can')->willReturn(true);
-        $this->repository->method('exists')->with($this->definition, $key)->willReturn(false);
+        $this->repository->method('exists')->willReturn(true); // legacy pre-check would pass; mutator decides
+        $this->mutator->method('delete')->with($key, $this->definition)->willReturn(false);
 
         $useCase = $this->makeUseCase();
 
@@ -106,10 +115,10 @@ final class DeleteRecordUseCaseTest extends TestCase
         $useCase->execute($key);
     }
 
-    public function test_execute_when_unauthorized_does_not_check_existence(): void
+    public function test_execute_when_unauthorized_does_not_touch_mutator(): void
     {
         $this->auth->method('can')->willReturn(false);
-        $this->repository->expects(self::never())->method('exists');
+        $this->mutator->expects(self::never())->method('delete');
 
         $useCase = $this->makeUseCase();
 
@@ -125,7 +134,6 @@ final class DeleteRecordUseCaseTest extends TestCase
         $key = new EntityKey(77, 'int');
 
         $this->auth->method('can')->willReturn(true);
-        $this->repository->method('exists')->willReturn(true);
         $this->mutator->method('delete')->willReturn(true);
 
         $dispatchedEvent = null;
